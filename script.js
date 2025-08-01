@@ -1,15 +1,13 @@
+let billCount = 0; // 👈 Move this to the top
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("budgetForm");
   const summary = document.getElementById("summary");
   const advice = document.getElementById("advice");
-  const billFields = document.getElementById("billFields");
-
-  let billCount = 0;
 
   // Add initial bill input
   addBillField();
 
-  // Attach form submission handler
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const income = parseFloat(document.getElementById("income").value) || 0;
@@ -45,10 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Add a new bill input
 function addBillField() {
   const container = document.getElementById("billFields");
-  const id = container.children.length;
+  const id = billCount;
   const div = document.createElement("div");
   div.innerHTML = `
     <label>Bill Name: <input type="text" id="billName${id}" placeholder="e.g. Rent" /></label>
@@ -60,7 +57,6 @@ function addBillField() {
   billCount++;
 }
 
-// Create professional PDF
 function exportPDF() {
   const content = document.querySelector(".container").cloneNode(true);
   const opt = {
@@ -73,7 +69,6 @@ function exportPDF() {
   html2pdf().set(opt).from(content).save();
 }
 
-// Dynamic advice generator
 function generateAdvice(income, expenses, bills, balance) {
   if (income <= 0) return "🚨 You have no income reported. Consider emergency assistance or temporary jobs.";
   if (expenses === 0) return "✅ Great! No expenses listed. Double-check if that’s accurate.";
