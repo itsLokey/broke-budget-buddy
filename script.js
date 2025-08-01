@@ -1,101 +1,101 @@
-let billCount = 0;
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('budget-form');
+  const results = document.getElementById('budget-results');
+  const summary = document.getElementById('summary');
+  const tips = document.getElementById('tips');
+  const addBillBtn = document.getElementById('add-bill');
+  const billsContainer = document.getElementById('bills-container');
+  const exportBtn = document.getElementById('export-pdf');
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Add the first bill field on load
-  addBillField();
+  addBillBtn.onclick = () => {
+    const billGroup = document.createElement('div');
+    billGroup.classList.add('bill-group');
+    billGroup.innerHTML = `
+      <input type="text" placeholder="e.g. Internet" class="bill-name" required />
+      <select class="bill-tag">
+        <option value="Rent">Rent</option>
+        <option value="Utilities">Utilities</option>
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" placeholder="Amount" class="bill-amount" required />
+      <button type="button" class="remove-bill">✕</button>
+    `;
+    billsContainer.appendChild(billGroup);
 
-  const form = document.getElementById("budgetForm");
-  form.addEventListener("submit", (e) => {
+    billGroup.querySelector('.remove-bill').onclick = () => {
+      billsContainer.removeChild(billGroup);
+    };
+  };
+
+  form.onsubmit = (e) => {
     e.preventDefault();
-    calculateBudget();
-  });
+
+    const income = parseFloat(document.getElementById('income').value || 0);
+    const partnerIncome = parseFloat(document.getElementById('partnerIncome').value || 0);
+    const totalIncome = income + partnerIncome;
+
+    const billNames = document.querySelectorAll('.bill-name');
+    const billTags = document.querySelectorAll('.bill-tag');
+    const billAmounts = document.querySelectorAll('.bill-amount');
+
+    let totalExpenses = 0;
+    let categories = {};
+    summary.innerHTML = "";
+
+    for (let i = 0; i < billNames.length; i++) {
+      const name = billNames[i].value || `Bill ${i + 1}`;
+      const tag = billTags[i].value || 'Other';
+      const amount = parseFloat(billAmounts[i].value || 0);
+
+      if (!categories[tag]) categories[tag] = 0;
+      categories[tag] += amount;
+      totalExpenses += amount;
+
+      const div = document.createElement('div');
+      div.textContent = `${name} (${tag}): $${amount.toFixed(2)}`;
+      summary.appendChild(div);
+    }
+
+    const remaining = totalIncome - totalExpenses;
+    summary.innerHTML += `<hr><strong>Total Income:</strong> $${totalIncome.toFixed(2)}<br>`;
+    summary.innerHTML += `<strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}<br>`;
+    summary.innerHTML += `<strong>Remaining:</strong> $${remaining.toFixed(2)}<br>`;
+
+    // Advice
+    tips.innerHTML = generateAdvice(remaining, categories);
+    results.classList.remove('hidden');
+  };
+
+  exportBtn.onclick = () => {
+    const element = document.getElementById('budget-results');
+    html2pdf().set({
+      margin: 0.5,
+      filename: 'broke-budget-summary.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    }).from(element).save();
+  };
 });
 
-function addBillField() {
-  const billFields = document.getElementById("billFields");
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "bill-wrapper";
-  wrapper.innerHTML = `
-    <label for="billName${billCount}">Bill Name:</label>
-    <input type="text" id="billName${billCount}" placeholder="e.g., Rent" />
-
-    <label for="billAmount${billCount}">Bill Amount ($):</label>
-    <input type="number" id="billAmount${billCount}" />
-    <hr>
-  `;
-
-  billFields.appendChild(wrapper);
-  billCount++;
-}
-
-function calculateBudget() {
-  const income = parseFloat(document.getElementById("income").value) || 0;
-  const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
-  const totalIncome = income + partnerIncome;
-
-  let totalBills = 0;
-  let billDetails = [];
-
-  for (let i = 0; i < billCount; i++) {
-    const nameEl = document.getElementById(`billName${i}`);
-    const amountEl = document.getElementById(`billAmount${i}`);
-    if (!nameEl || !amountEl) continue;
-
-    const name = nameEl.value || `Bill #${i + 1}`;
-    const amount = parseFloat(amountEl.value) || 0;
-    billDetails.push({ name, amount });
-    totalBills += amount;
-  }
-
-  const leftOver = totalIncome - totalBills;
-  const summaryBox = document.getElementById("summary");
-  summaryBox.innerHTML = `
-    <h2>📊 Budget Summary</h2>
-    <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
-    <p><strong>Total Bills:</strong> $${totalBills.toFixed(2)}</p>
-    <p><strong>Remaining:</strong> $${leftOver.toFixed(2)}</p>
-    <hr>
-    <h3>Breakdown:</h3>
-    <ul>
-      ${billDetails.map(bill => `<li>${bill.name}: $${bill.amount.toFixed(2)}</li>`).join("")}
-    </ul>
-  `;
-
-  generateAdvice(leftOver, totalIncome, billDetails);
-}
-
-function generateAdvice(remaining, income, bills) {
-  const adviceBox = document.getElementById("advice");
-
+function generateAdvice(remaining, categories) {
   let advice = "";
-  const percent = (remaining / income) * 100;
 
   if (remaining < 0) {
-    advice += "<p>⚠️ You’re spending more than you earn. Consider reducing non-essential expenses or finding ways to boost income.</p>";
-  } else if (percent < 10) {
-    advice += "<p>⚠️ You have very little left over. Consider meal planning, reviewing subscriptions, or negotiating bill reductions.</p>";
-  } else if (percent < 30) {
-    advice += "<p>✅ You're doing okay, but there’s room to improve. Try allocating a fixed percent to savings.</p>";
+    advice += "⚠️ You're overspending. Consider cutting from non-essential categories like entertainment or transport.<br>";
+  } else if (remaining < 100) {
+    advice += "⚠️ You're just breaking even. Try to increase income or set a tighter grocery/utilities budget.<br>";
   } else {
-    advice += "<p>💰 Great job! Consider putting extra income into emergency savings, investments, or debt repayment.</p>";
+    advice += "✅ You're saving! Consider allocating a portion to emergency savings or debt repayment.<br>";
   }
 
-  // Add suggestions based on common bills
-  const hasHighRent = bills.find(b => b.name.toLowerCase().includes("rent") && b.amount > income * 0.4);
-  const hasSubscription = bills.find(b => b.name.toLowerCase().includes("netflix") || b.name.toLowerCase().includes("stream"));
-
-  if (hasHighRent) {
-    advice += "<p>🏠 Your rent is high compared to your income. Explore shared housing, subsidies, or relocation options.</p>";
-  }
-  if (hasSubscription) {
-    advice += "<p>📺 Consider trimming streaming services or rotating them month-to-month to save money.</p>";
+  for (let [cat, amt] of Object.entries(categories)) {
+    if (amt > 0.4 * (remaining + amt)) {
+      advice += `👉 You’re spending heavily on <strong>${cat}</strong>. See if you can reduce it.<br>`;
+    }
   }
 
-  adviceBox.innerHTML = `<h2>💡 Smart Advice</h2>${advice}`;
-}
-
-function exportPDF() {
-  const content = document.querySelector(".container");
-  html2pdf().from(content).save("budget-summary.pdf");
+  advice += "<br><em>This advice is AI-generated and not a substitute for professional financial consulting.</em>";
+  return advice;
 }
