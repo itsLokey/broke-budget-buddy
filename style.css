@@ -1,163 +1,109 @@
-/* Reset & base */
-* {
-  box-sizing: border-box;
-}
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0; padding: 20px;
-  background-color: #f0f4f8;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f5f5;
   color: #333;
+  margin: 0;
+  padding: 0;
 }
+
 .container {
-  max-width: 720px;
-  margin: 0 auto;
-  background: white;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
+
 h1 {
-  margin-top: 0;
-  color: #2a7de1;
-}
-.subtitle {
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-form label {
-  font-weight: 600;
-  display: block;
-  margin: 12px 0 6px;
-}
-
-input[type="number"], select {
-  width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 15px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  transition: border-color 0.3s ease;
-}
-
-input[type="number"]:focus, select:focus {
-  border-color: #2a7de1;
-  outline: none;
-}
-
-#bill-entry {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+  text-align: center;
   margin-bottom: 10px;
 }
 
-#bill-select {
-  flex: 2;
+.subtitle {
+  text-align: center;
+  color: #777;
+  margin-bottom: 30px;
 }
 
-#bill-amount {
-  flex: 1;
+label {
+  font-weight: 500;
+  margin-top: 15px;
+  display: block;
 }
 
-#add-bill-btn {
-  background-color: #2a7de1;
-  color: white;
-  padding: 9px 14px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex-shrink: 0;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-}
-
-#add-bill-btn:hover {
-  background-color: #1b53b0;
-}
-
-.bills-list {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 20px;
-  max-height: 160px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
   border-radius: 6px;
-  background: #fafafa;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
-.bills-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
-  font-weight: 600;
-  color: #444;
-}
-
-.bills-list li:last-child {
-  border-bottom: none;
-}
-
-.bills-list button.remove-btn {
-  background: #e53935;
+button {
+  background-color: #2b80ff;
+  color: white;
   border: none;
-  color: white;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-weight: 700;
-  transition: background-color 0.3s ease;
-}
-
-.bills-list button.remove-btn:hover {
-  background: #b12b25;
-}
-
-button[type="submit"], #export-pdf-btn {
-  background-color: #2a7de1;
-  color: white;
   padding: 12px 20px;
-  border: none;
+  font-size: 1rem;
   border-radius: 6px;
-  font-weight: 700;
   cursor: pointer;
   margin-top: 10px;
-  transition: background-color 0.3s ease;
-  width: 100%;
 }
 
-button[type="submit"]:hover, #export-pdf-btn:hover {
-  background-color: #1b53b0;
+button:hover {
+  background-color: #1c64d1;
 }
 
-#results {
-  margin-top: 30px;
+.bill-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#bill-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+#bill-list li {
+  background-color: #e7f0ff;
+  margin-bottom: 5px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
 }
 
 #progress-bar-wrapper {
-  background: #ddd;
-  border-radius: 8px;
+  background: #e0e0e0;
+  height: 20px;
+  border-radius: 10px;
+  margin-top: 10px;
   overflow: hidden;
-  height: 25px;
-  margin: 10px 0;
 }
 
 #progress-bar {
-  height: 25px;
+  background: #2ecc71;
+  height: 100%;
   width: 0%;
-  background-color: #4caf50;
-  transition: width 0.5s ease, background-color 0.5s ease;
+  transition: width 0.5s;
+}
+
+.hidden {
+  display: none;
+}
+
+.hidden-content {
+  display: none;
 }
 
 footer {
   text-align: center;
   margin-top: 40px;
-  font-style: italic;
-  color: #777;
-  user-select: none;
+  color: #888;
 }
