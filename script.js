@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let budgetChart = null;
 
-  // Predetermined bills list for dropdown
   const predefinedBills = [
     { id: 'rent', label: 'Rent / Mortgage', default: 1200 },
     { id: 'utilities', label: 'Utilities (Electricity, Water)', default: 150 },
@@ -30,15 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'other', label: 'Other', default: 0 }
   ];
 
-  // To keep track of which bills have been added to avoid duplicates
   let addedBillIds = new Set();
 
-  // Helper: create a bill entry DOM element
   function createBillEntry(selectedId = '', amountVal = '') {
     const div = document.createElement('div');
     div.className = 'bill-entry';
 
-    // Create dropdown/select
     const select = document.createElement('select');
     select.className = 'bill-select';
     select.required = true;
@@ -58,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Create amount input
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '0';
@@ -68,13 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
     input.required = true;
     input.value = amountVal || (selectedId ? getDefaultAmount(selectedId) : '');
 
-    // Remove button
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'remove-bill-btn';
     removeBtn.textContent = '×';
 
-    // Event listeners
     select.addEventListener('change', () => {
       if (selectedId) addedBillIds.delete(selectedId);
       selectedId = select.value;
@@ -100,13 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return div;
   }
 
-  // Get default amount for bill id
   function getDefaultAmount(id) {
     const bill = predefinedBills.find(b => b.id === id);
     return bill ? bill.default : '';
   }
 
-  // Refresh all dropdowns to disable options already selected elsewhere
   function refreshAllBillSelects() {
     const selects = billsContainer.querySelectorAll('select.bill-select');
     selects.forEach(select => {
@@ -124,10 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Add initial bill entry on load
   addBillEntry();
 
-  // Add bill entry on button click
   addBillBtn.addEventListener('click', () => {
     addBillEntry();
   });
@@ -141,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshAllBillSelects();
   }
 
-  // Form submission handler
   budgetForm.onsubmit = (e) => {
     e.preventDefault();
 
@@ -206,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     adviceDiv.innerHTML = generateAdvice(remaining, bills, totalIncome);
   };
 
-  // Export PDF
   exportBtn.onclick = () => {
     exportBtn.style.display = 'none';
     html2pdf().set({
@@ -227,13 +214,13 @@ document.addEventListener('DOMContentLoaded', () => {
     progressBar.style.width = percentage + '%';
 
     if (percentage < 60) {
-      progressBar.style.backgroundColor = '#4caf50'; // green
+      progressBar.style.backgroundColor = '#4caf50';
       progressText.textContent = 'You are under budget. Great job!';
     } else if (percentage >= 60 && percentage <= 90) {
-      progressBar.style.backgroundColor = '#ffa500'; // orange
+      progressBar.style.backgroundColor = '#ffa500';
       progressText.textContent = 'Careful — you’re nearing your limit.';
     } else {
-      progressBar.style.backgroundColor = '#e53935'; // red
+      progressBar.style.backgroundColor = '#e53935';
       progressText.textContent = 'You are over budget!';
     }
   }
@@ -271,15 +258,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- UPDATED generateAdvice function ---
   function generateAdvice(remaining, bills, income) {
     let advice = '';
 
     if (remaining < 0) {
-      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider reducing non-essential expenses or increasing your income.</p>`;
+      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider these steps:</p>`;
+      advice += `<ul>
+        <li>Review and cut non-essential expenses (e.g., subscriptions, dining out).</li>
+        <li>Prioritize debt repayments with the highest interest rates.</li>
+        <li>Look for ways to increase your income through side gigs or negotiating raises.</li>
+        <li>Consider creating a stricter budget plan and tracking your spending daily.</li>
+      </ul>`;
     } else if (remaining < income * 0.1) {
-      advice += `<p>⚠️ You have limited savings potential. Look for ways to trim expenses and save more.</p>`;
+      advice += `<p>⚠️ You have limited savings potential. Here's what you can do:</p>`;
+      advice += `<ul>
+        <li>Track every expense carefully to identify small savings opportunities.</li>
+        <li>Set up automatic transfers to a savings account, even if small.</li>
+        <li>Reduce discretionary spending, like entertainment or dining out.</li>
+        <li>Build an emergency fund starting with at least $500.</li>
+      </ul>`;
     } else {
-      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider saving or investing this amount monthly.</p>`;
+      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider these smart moves:</p>`;
+      advice += `<ul>
+        <li>Start or increase contributions to an emergency fund (3-6 months of expenses).</li>
+        <li>Consider investing in retirement accounts or other investment vehicles.</li>
+        <li>Set short- and long-term financial goals (vacation, home, education).</li>
+        <li>Continue to monitor your spending and adjust budget as needed.</li>
+      </ul>`;
     }
 
     const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
@@ -290,7 +296,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     for (const [cat, amt] of Object.entries(categoryTotals)) {
       if (amt > totalExpenses * 0.4) {
-        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. You might want to review this expense.</p>`;
+        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. Consider:</p>`;
+        if (cat.toLowerCase().includes('rent')) {
+          advice += `<ul><li>Exploring cheaper housing options or negotiating rent.</li></ul>`;
+        } else if (cat.toLowerCase().includes('debt')) {
+          advice += `<ul><li>Reviewing your debt repayment plan and possibly consolidating high-interest debts.</li></ul>`;
+        } else if (cat.toLowerCase().includes('subscriptions')) {
+          advice += `<ul><li>Canceling unused or less important subscriptions.</li></ul>`;
+        } else if (cat.toLowerCase().includes('groceries')) {
+          advice += `<ul><li>Planning meals and using discounts/coupons to reduce grocery bills.</li></ul>`;
+        } else {
+          advice += `<ul><li>Reviewing this category to find possible savings.</li></ul>`;
+        }
       }
     }
 
