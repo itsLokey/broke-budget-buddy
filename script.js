@@ -1,140 +1,126 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("budget-form");
-  const incomeInput = document.getElementById("income");
-  const partnerIncomeInput = document.getElementById("partnerIncome");
-  const resultSection = document.getElementById("results");
-  const summary = document.getElementById("summary");
-  const advice = document.getElementById("advice");
-  const exportBtn = document.getElementById("export-pdf-btn");
-  const progressBar = document.getElementById("progress-bar");
-  const progressText = document.getElementById("progress-text");
-  const chartCanvas = document.getElementById("budgetChart");
+document.addEventListener('DOMContentLoaded', () => {
+  const addBillBtn = document.getElementById('add-bill');
+  const billType = document.getElementById('bill-type');
+  const billAmount = document.getElementById('bill-amount');
+  const billList = document.getElementById('bill-list');
+  const budgetForm = document.getElementById('budget-form');
+  const resultsSection = document.getElementById('results');
+  const summaryDiv = document.getElementById('summary');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const adviceDiv = document.getElementById('advice');
+  const exportBtn = document.getElementById('export-pdf-btn');
 
-  let budgetChart = null;
+  let bills = [];
 
-  // Enable or disable bill amount input based on checkbox
-  document.querySelectorAll(".bill-checkbox input[type='checkbox']").forEach((checkbox, index) => {
-    const amountInput = document.querySelectorAll(".bill-amount")[index];
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) {
-        amountInput.disabled = false;
-        amountInput.value = checkbox.dataset.default || "";
-      } else {
-        amountInput.disabled = true;
-        amountInput.value = "";
-      }
-    });
-  });
+  addBillBtn.onclick = () => {
+    const type = billType.value;
+    const amount = parseFloat(billAmount.value);
+    if (!type || isNaN(amount) || amount <= 0) return;
 
-  form.onsubmit = function (e) {
-    e.preventDefault();
-
-    const income = parseFloat(incomeInput.value) || 0;
-    const partnerIncome = parseFloat(partnerIncomeInput.value) || 0;
-    const totalIncome = income + partnerIncome;
-
-    const selectedCheckboxes = document.querySelectorAll(".bill-checkbox input[type='checkbox']:checked");
-    const billAmounts = [];
-
-    selectedCheckboxes.forEach((checkbox, index) => {
-      const amountInput = checkbox.parentElement.querySelector(".bill-amount");
-      const amount = parseFloat(amountInput.value) || 0;
-      billAmounts.push({
-        label: checkbox.nextElementSibling.innerText.trim(),
-        value: amount
-      });
-    });
-
-    const totalExpenses = billAmounts.reduce((sum, b) => sum + b.value, 0);
-    const leftover = totalIncome - totalExpenses;
-    const percentUsed = ((totalExpenses / totalIncome) * 100).toFixed(1);
-
-    summary.innerHTML = `
-      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
-      <p><strong>Total Bills:</strong> $${totalExpenses.toFixed(2)}</p>
-      <p><strong>Remaining:</strong> $${leftover.toFixed(2)}</p>
-    `;
-
-    // Show hidden sections
-    resultSection.classList.remove("hidden");
-    document.querySelectorAll("#results h2, #export-pdf-btn, #progress-section").forEach(el => {
-      el.classList.remove("hidden");
-    });
-
-    generateProgressBar(percentUsed);
-    generateChart(billAmounts);
-    generateAdvice(percentUsed, leftover);
-
-    window.scrollTo({ top: resultSection.offsetTop, behavior: "smooth" });
-  };
-
-  function generateProgressBar(percent) {
-    progressBar.style.width = `${percent}%`;
-    progressBar.style.background = percent > 85 ? "red" : percent > 70 ? "orange" : "#4caf50";
-    progressText.innerText = `${percent}% of your income is being used.`;
-  }
-
-  function generateChart(bills) {
-    if (budgetChart) {
-      budgetChart.destroy();
+    const existing = bills.find(b => b.type === type);
+    if (existing) {
+      existing.amount += amount;
+    } else {
+      bills.push({ type, amount });
     }
 
-    const labels = bills.map(b => b.label);
-    const data = bills.map(b => b.value);
+    billType.value = '';
+    billAmount.value = '';
+    renderBillList();
+  };
 
-    budgetChart = new Chart(chartCanvas, {
-      type: "pie",
+  function renderBillList() {
+    billList.innerHTML = '';
+    bills.forEach((bill, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${bill.type}: $${bill.amount.toFixed(2)}
+        <button data-index="${index}">X</button>
+      `;
+      billList.appendChild(li);
+    });
+
+    document.querySelectorAll('#bill-list button').forEach(btn => {
+      btn.onclick = () => {
+        const i = parseInt(btn.dataset.index);
+        bills.splice(i, 1);
+        renderBillList();
+      };
+    });
+  }
+
+  budgetForm.onsubmit = (e) => {
+    e.preventDefault();
+    const income = parseFloat(document.getElementById('income').value) || 0;
+    const partnerIncome = parseFloat(document.getElementById('partnerIncome').value) || 0;
+    const totalIncome = income + partnerIncome;
+    const totalExpenses = bills.reduce((sum, bill) => sum + bill.amount, 0);
+    const balance = totalIncome - totalExpenses;
+
+    resultsSection.classList.remove('hidden');
+
+    summaryDiv.innerHTML = `
+      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
+      <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
+      <p><strong>Remaining:</strong> $${balance.toFixed(2)}</p>
+    `;
+
+    const usagePercent = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+    progressBar.style.width = `${Math.min(usagePercent, 100)}%`;
+    progressBar.style.backgroundColor = usagePercent > 100 ? 'red' : '#28a745';
+    progressText.textContent = usagePercent > 100
+      ? `Over budget by ${Math.abs(balance).toFixed(2)}`
+      : `You're using ${usagePercent.toFixed(1)}% of your budget`;
+
+    generateChart();
+    giveAdvice(balance, usagePercent);
+  };
+
+  function generateChart() {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    if (window.budgetChart) window.budgetChart.destroy();
+
+    window.budgetChart = new Chart(ctx, {
+      type: 'pie',
       data: {
-        labels,
+        labels: bills.map(b => b.type),
         datasets: [{
-          label: "Bill Amounts",
-          data,
+          label: 'Spending Breakdown',
+          data: bills.map(b => b.amount),
           backgroundColor: [
-            "#4caf50", "#2196f3", "#ff9800", "#f44336", "#9c27b0", "#3f51b5", "#00bcd4"
-          ]
+            '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
+            '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#343a40'
+          ],
         }]
       },
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            position: "bottom"
-          }
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: {
+            label: (ctx) => `${ctx.label}: $${ctx.raw.toFixed(2)}`
+          }}
         }
       }
     });
   }
 
-  function generateAdvice(percent, leftover) {
-    let message = "";
-
-    if (percent > 90) {
-      message = "⚠️ You're spending too much of your income on bills. Consider downsizing or cutting unnecessary expenses.";
+  function giveAdvice(balance, percent) {
+    let msg = '';
+    if (percent > 100) {
+      msg = 'You are spending more than your income! Cut unnecessary costs immediately.';
+    } else if (percent > 90) {
+      msg = 'You’re on the edge. Consider reducing non-essential bills like subscriptions.';
     } else if (percent > 75) {
-      message = "🧮 You're close to your budget limit. Try tracking smaller expenses like subscriptions.";
-    } else if (percent > 50) {
-      message = "📊 You're managing reasonably well. Consider putting more into savings or investments.";
+      msg = 'You’re doing okay, but try to aim for under 70% spending if possible.';
     } else {
-      message = "✅ Great job! You have a strong surplus. Make sure to use it wisely.";
+      msg = 'Nice job! You’re living below your means. Consider saving or investing.';
     }
-
-    if (leftover < 0) {
-      message += "<br><strong>Warning:</strong> You're operating at a loss!";
-    }
-
-    advice.innerHTML = message;
+    adviceDiv.textContent = msg;
   }
 
-  exportBtn.onclick = function () {
-    const element = document.getElementById("results");
-    const opt = {
-      margin: 0.5,
-      filename: `Budget_Breakdown_${new Date().toISOString().split("T")[0]}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
-    };
-
-    html2pdf().set(opt).from(element).save();
+  exportBtn.onclick = () => {
+    html2pdf().from(resultsSection).save('BudgetSummary.pdf');
   };
 });
