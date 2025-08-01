@@ -1,65 +1,99 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f7f9fc;
-  color: #333;
   margin: 0;
-  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f0f5;
+  color: #111;
 }
 
 .container {
-  max-width: 700px;
+  max-width: 800px;
   margin: auto;
-  background: #fff;
-  border-radius: 8px;
-  padding: 30px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  padding: 2rem;
+  background: white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  margin-top: 2rem;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-label {
+input, select, button {
   display: block;
-  margin: 15px 0 5px;
-}
-
-input {
   width: 100%;
-  padding: 10px;
+  padding: 0.6rem;
+  margin: 0.4rem 0;
   font-size: 1rem;
-  margin-bottom: 10px;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 button {
-  margin-top: 10px;
-  margin-right: 10px;
-  padding: 10px 20px;
-  background: #2a9d8f;
+  background-color: #4CAF50;
   color: white;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
 button:hover {
-  background: #21867a;
+  background-color: #45a049;
 }
 
-.output-box {
-  background: #eef3f7;
-  margin-top: 30px;
-  padding: 20px;
+button.remove-bill {
+  background-color: crimson;
+  width: auto;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.bill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.bill-group input, .bill-group select {
+  flex: 1;
+  min-width: 120px;
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+#summary, #tips {
+  background: #f9f9f9;
+  padding: 1rem;
   border-radius: 8px;
-  border-left: 5px solid #2a9d8f;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 15px 0;
+.hidden {
+  display: none;
+}
+
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111;
+    color: #eee;
+  }
+  .container {
+    background-color: #222;
+    color: #eee;
+  }
+  input, select, button {
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+  }
+  button:hover {
+    background-color: #666;
+  }
+  #summary, #tips {
+    background-color: #1c1c1c;
+  }
 }
