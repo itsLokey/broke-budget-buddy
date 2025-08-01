@@ -1,99 +1,192 @@
+/* Basic Reset */
+* {
+  box-sizing: border-box;
+}
+
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7fa;
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f0f5;
-  color: #111;
+  color: #333;
+  line-height: 1.6;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
+  max-width: 720px;
+  margin: 2rem auto;
   padding: 2rem;
-  background: white;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  border-radius: 10px;
-  margin-top: 2rem;
-}
-
-input, select, button {
-  display: block;
-  width: 100%;
-  padding: 0.6rem;
-  margin: 0.4rem 0;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-button {
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-button.remove-bill {
-  background-color: crimson;
-  width: auto;
-  display: inline-block;
-  margin-left: 0.5rem;
-}
-
-.bill-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.bill-group input, .bill-group select {
-  flex: 1;
-  min-width: 120px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 h1, h2 {
   text-align: center;
+  color: #2a7de1;
 }
 
-#summary, #tips {
-  background: #f9f9f9;
-  padding: 1rem;
+.subtitle {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+form label, form legend {
+  font-weight: 600;
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
   border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+input[type="number"]:focus {
+  border-color: #2a7de1;
+  outline: none;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.bill-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+}
+
+.bill-checkbox input[type="checkbox"] {
+  transform: scale(1.3);
+  cursor: pointer;
+}
+
+.bill-checkbox input.bill-amount {
+  width: 100px;
+  margin-left: auto;
+  padding: 0.3rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.bill-checkbox input.bill-amount:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+button#submit-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.7rem;
+  font-size: 1.1rem;
+  background-color: #2a7de1;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button#submit-btn:hover {
+  background-color: #1d5bc1;
 }
 
 .hidden {
   display: none;
 }
 
-footer {
-  text-align: center;
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  color: #666;
+#summary, #advice {
+  background-color: #f1f6ff;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #222;
 }
 
+#progress-section {
+  margin-bottom: 2rem;
+}
+
+#progress-bar-wrapper {
+  width: 100%;
+  height: 22px;
+  background-color: #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0.5rem 0 0.8rem 0;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background-color: green;
+  transition: width 0.6s ease-in-out;
+  border-radius: 12px 0 0 12px;
+}
+
+#progress-text {
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 2rem auto;
+}
+
+footer {
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+  color: #888;
+}
+
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #111;
+    background-color: #121212;
     color: #eee;
   }
   .container {
-    background-color: #222;
-    color: #eee;
+    background-color: #1e1e1e;
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05);
   }
-  input, select, button {
+  #summary, #advice {
+    background-color: #292929;
+    color: #ddd;
+  }
+  input[type="number"] {
     background-color: #333;
-    color: #eee;
     border: 1px solid #555;
+    color: #eee;
   }
-  button:hover {
-    background-color: #666;
+  input[type="number"]:focus {
+    border-color: #4a90e2;
   }
-  #summary, #tips {
-    background-color: #1c1c1c;
+  button#submit-btn {
+    background-color: #4a90e2;
+  }
+  button#submit-btn:hover {
+    background-color: #357abd;
+  }
+  #progress-bar-wrapper {
+    background-color: #333;
   }
 }
