@@ -1,108 +1,125 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("budget-form");
-  const addBillBtn = document.getElementById("add-bill");
-  const billsContainer = document.getElementById("bills-container");
-  const results = document.getElementById("results");
-  const summary = document.getElementById("summary");
-  const breakdown = document.getElementById("spending-breakdown");
-  const smartAdvice = document.getElementById("smart-advice");
-  const exportBtn = document.getElementById("export-pdf");
+document.addEventListener('DOMContentLoaded', function () {
+  const billList = document.getElementById('billList');
+  const addBillBtn = document.getElementById('addBill');
+  const budgetForm = document.getElementById('budgetForm');
+  const summary = document.getElementById('summary');
+  const breakdown = document.getElementById('breakdown');
+  const adviceSection = document.getElementById('adviceSection');
+  const chartContainer = document.getElementById('chartContainer');
+  const exportBtn = document.getElementById('exportPDF');
+
+  const billOptions = [
+    'Rent/Mortgage',
+    'Utilities',
+    'Internet',
+    'Phone',
+    'Groceries',
+    'Insurance',
+    'Transportation',
+    'Subscriptions',
+    'Childcare',
+    'Loan Payments',
+    'Other'
+  ];
+
+  let billCount = 0;
   let budgetChart;
 
-  function createBillRow() {
-    const div = document.createElement("div");
-    div.className = "bill-group";
+  function createBillField() {
+    const div = document.createElement('div');
+    div.classList.add('bill-group');
     div.innerHTML = `
-      <select class="bill-name">
-        <option value="Rent">Rent</option>
-        <option value="Utilities">Utilities</option>
-        <option value="Groceries">Groceries</option>
-        <option value="Transportation">Transportation</option>
-        <option value="Phone">Phone</option>
-        <option value="Internet">Internet</option>
-        <option value="Insurance">Insurance</option>
-        <option value="Debt">Debt Repayment</option>
-        <option value="Subscriptions">Subscriptions</option>
-        <option value="Childcare">Childcare</option>
+      <select name="billName" required>
+        ${billOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
       </select>
-      <input type="number" class="bill-amount" placeholder="Amount" required />
-      <button type="button" class="remove-bill">X</button>
+      <input type="number" name="billAmount" placeholder="Amount ($)" required min="0" step="0.01">
+      <button type="button" class="remove-bill">Remove</button>
     `;
-    billsContainer.appendChild(div);
+    billList.appendChild(div);
 
-    div.querySelector(".remove-bill").onclick = () => div.remove();
+    div.querySelector('.remove-bill').addEventListener('click', () => {
+      billList.removeChild(div);
+    });
   }
 
-  addBillBtn.onclick = () => createBillRow();
+  addBillBtn.addEventListener('click', createBillField);
+  createBillField(); // initial field
 
-  form.onsubmit = (e) => {
+  budgetForm.onsubmit = function (e) {
     e.preventDefault();
-    const income = parseFloat(document.getElementById("user-income").value) || 0;
-    const partnerIncome = parseFloat(document.getElementById("partner-income").value) || 0;
-    const totalIncome = income + partnerIncome;
 
-    const bills = [];
-    const names = document.querySelectorAll(".bill-name");
-    const amounts = document.querySelectorAll(".bill-amount");
+    const income = parseFloat(document.getElementById('income').value);
+    const bills = [...document.querySelectorAll('#billList .bill-group')].map(group => ({
+      name: group.querySelector('select').value,
+      amount: parseFloat(group.querySelector('input').value)
+    }));
 
-    for (let i = 0; i < names.length; i++) {
-      const name = names[i].value;
-      const amount = parseFloat(amounts[i].value) || 0;
-      bills.push({ name, amount });
-    }
+    const totalBills = bills.reduce((sum, b) => sum + b.amount, 0);
+    const remaining = income - totalBills;
+    const percentage = ((totalBills / income) * 100).toFixed(1);
 
-    const totalBills = bills.reduce((sum, bill) => sum + bill.amount, 0);
-    const remaining = totalIncome - totalBills;
-
-    summary.innerHTML = `
-      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
-      <p><strong>Total Expenses:</strong> $${totalBills.toFixed(2)}</p>
+    document.getElementById('summary').innerHTML = `
+      <h3>Budget Summary</h3>
+      <p><strong>Total Income:</strong> $${income.toFixed(2)}</p>
+      <p><strong>Total Bills:</strong> $${totalBills.toFixed(2)}</p>
       <p><strong>Remaining:</strong> $${remaining.toFixed(2)}</p>
     `;
 
-    breakdown.innerHTML = "";
-    bills.forEach(bill => {
-      const li = document.createElement("li");
-      li.textContent = `${bill.name}: $${bill.amount.toFixed(2)}`;
-      breakdown.appendChild(li);
-    });
+    document.getElementById('breakdown').innerHTML = `
+      <h3>Spending Breakdown</h3>
+      <ul>
+        ${bills.map(b => `<li>${b.name}: $${b.amount.toFixed(2)}</li>`).join('')}
+      </ul>
+    `;
 
-    generateAdvice(remaining, bills, totalIncome);
-    generateChart(bills, totalIncome);
-    results.style.display = "block";
+    generateAdvice(remaining, bills, income);
+    generateChart(bills, percentage);
+
+    // Show hidden sections
+    summary.classList.remove('hidden');
+    breakdown.classList.remove('hidden');
+    chartContainer.classList.remove('hidden');
+    adviceSection.classList.remove('hidden');
+    exportBtn.classList.remove('hidden');
   };
 
   function generateAdvice(remaining, bills, income) {
-    let advice = "";
+    let advice = '';
     if (remaining < 0) {
-      advice += `<p>⚠️ You're spending more than you earn. Cut unnecessary expenses like subscriptions or renegotiate bills.</p>`;
-    } else if (remaining > income * 0.2) {
-      advice += `<p>✅ Great job! Consider saving or investing the remaining $${remaining.toFixed(2)}.</p>`;
+      advice += `<p>⚠️ You are overspending by <strong>$${Math.abs(remaining).toFixed(2)}</strong>. Consider reducing non-essential bills.</p>`;
+    } else if (remaining < income * 0.1) {
+      advice += `<p>⚠️ Your savings are low. Aim to save at least 10% of your income.</p>`;
     } else {
-      advice += `<p>💡 You're close to balanced. Track smaller expenses to improve.</p>`;
+      advice += `<p>✅ Great job! You're managing your budget well.</p>`;
     }
 
-    smartAdvice.innerHTML = advice;
+    const biggest = bills.sort((a, b) => b.amount - a.amount)[0];
+    advice += `<p>Your largest expense is <strong>${biggest.name}</strong> at <strong>$${biggest.amount.toFixed(2)}</strong>.</p>`;
+
+    document.getElementById('adviceSection').innerHTML = `
+      <h3>Smart Financial Advice</h3>
+      <div class="advice">${advice}</div>
+    `;
   }
 
-  function generateChart(bills, income) {
+  function generateChart(bills, usedPercent) {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
     if (budgetChart) budgetChart.destroy();
 
-    const ctx = document.getElementById("budget-chart").getContext("2d");
-    const labels = bills.map(b => b.name);
-    const data = bills.map(b => b.amount);
-
     budgetChart = new Chart(ctx, {
-      type: "doughnut",
+      type: 'doughnut',
       data: {
-        labels,
+        labels: bills.map(b => b.name),
         datasets: [{
-          data,
+          label: 'Expenses',
+          data: bills.map(b => b.amount),
           backgroundColor: [
-            '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
-            '#6610f2', '#fd7e14', '#6f42c1', '#20c997', '#e83e8c'
+            '#f94144', '#f3722c', '#f9844a', '#f9c74f',
+            '#90be6d', '#43aa8b', '#577590', '#277da1',
+            '#4d908e', '#6a4c93', '#b5179e'
           ],
-          borderWidth: 1
+          borderColor: '#fff',
+          borderWidth: 2
         }]
       },
       options: {
@@ -115,19 +132,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  exportBtn.onclick = async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const resultsEl = document.getElementById("results");
+  exportBtn.addEventListener('click', () => {
+    const pdf = new window.jspdf.jsPDF();
+    pdf.setFontSize(14);
+    pdf.text('Budget Report', 20, 20);
 
-    await html2canvas(resultsEl).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const imgProps = doc.getImageProperties(imgData);
-      const pdfWidth = doc.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    let y = 30;
+    const income = document.getElementById('income').value;
+    pdf.text(`Income: $${income}`, 20, y);
+    y += 10;
 
-      doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      doc.save("budget-summary.pdf");
+    [...document.querySelectorAll('#billList .bill-group')].forEach(group => {
+      const name = group.querySelector('select').value;
+      const amount = group.querySelector('input').value;
+      pdf.text(`${name}: $${amount}`, 20, y);
+      y += 10;
     });
-  };
+
+    pdf.text(`Remaining: $${(document.getElementById('summary').innerText.match(/Remaining:\s+\$(\d+(\.\d+)?)/) || [])[1]}`, 20, y);
+    y += 20;
+
+    const adviceText = document.getElementById('adviceSection').innerText;
+    pdf.setFontSize(12);
+    pdf.text("Advice:", 20, y);
+    y += 10;
+
+    const lines = pdf.splitTextToSize(adviceText, 170);
+    pdf.text(lines, 20, y);
+
+    pdf.save("budget_report.pdf");
+  });
 });
