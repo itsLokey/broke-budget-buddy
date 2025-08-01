@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Broke Budget Buddy</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" defer></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <main class="container">
-    <h1>Broke Budget Buddy</h1>
-
+  <div class="container">
+    <h1>💸 Broke Budget Buddy</h1>
     <form id="budgetForm">
-      <label>Monthly Income: <input type="number" id="income" required /></label>
-      <label>Partner's Income (optional): <input type="number" id="partnerIncome" /></label>
+      <label for="income">Your Monthly Income ($):</label>
+      <input type="number" id="income" required />
+
+      <label for="partnerIncome">Partner’s Income (Optional):</label>
+      <input type="number" id="partnerIncome" />
 
       <div id="billFields"></div>
-      <button type="button" onclick="addBillField()">+ Add Bill</button>
 
-      <button type="submit">📊 Get Budget</button>
-      <button type="button" onclick="exportPDF()">📄 Export PDF</button>
+      <button type="button" onclick="addBillField()">+ Add Another Bill</button>
+      <button type="submit">Get Budget</button>
     </form>
 
-    <div id="summary"></div>
-    <div id="advice"></div>
-  </main>
+    <div id="summary" class="output-box"></div>
+    <div id="advice" class="output-box"></div>
 
-  <footer>
-    <p>Built by Ben Becker</p>
-  </footer>
+    <button onclick="exportPDF()">📄 Export PDF</button>
+  </div>
 </body>
 </html>
