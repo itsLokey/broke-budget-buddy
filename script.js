@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryTitle = document.getElementById('summary-title');
   const chartTitle = document.getElementById('chart-title');
   const adviceTitle = document.getElementById('advice-title');
-  const exportBtn = document.getElementById('export-pdf-btn');
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
+  const exportCsvBtn = document.getElementById('export-csv-btn');
   const progressSection = document.getElementById('progress-section');
   const summaryDiv = document.getElementById('summary');
   const adviceDiv = document.getElementById('advice');
@@ -13,9 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartCanvas = document.getElementById('budgetChart');
   const billsContainer = document.getElementById('bills-container');
   const addBillBtn = document.getElementById('add-bill-btn');
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+  const incomeInput = document.getElementById('income');
+  const partnerIncomeInput = document.getElementById('partnerIncome');
+  const incomeError = document.getElementById('income-error');
+  const partnerIncomeError = document.getElementById('partnerIncome-error');
 
   let budgetChart = null;
 
+  // Predetermined bills list for dropdown
   const predefinedBills = [
     { id: 'rent', label: 'Rent / Mortgage', default: 1200 },
     { id: 'utilities', label: 'Utilities (Electricity, Water)', default: 150 },
@@ -31,6 +39,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let addedBillIds = new Set();
 
+  // Load saved data from localStorage
+  function loadSavedData() {
+    try {
+      const savedIncome = localStorage.getItem('bbb_income');
+      if (savedIncome !== null) incomeInput.value = savedIncome;
+
+      const savedPartnerIncome = localStorage.getItem('bbb_partnerIncome');
+      if (savedPartnerIncome !== null) partnerIncomeInput.value = savedPartnerIncome;
+
+      const savedBills = JSON.parse(localStorage.getItem('bbb_bills'));
+      if (savedBills && Array.isArray(savedBills)) {
+        savedBills.forEach(bill => addBillEntry(bill.id, bill.amount));
+      } else {
+        addBillEntry(); // Add one blank entry if none saved
+      }
+
+      // Dark mode
+      const darkModePref = localStorage.getItem('bbb_darkMode');
+      if (darkModePref === 'true') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.checked = true;
+      }
+    } catch (e) {
+      console.error('Error loading saved data', e);
+      addBillEntry();
+    }
+  }
+
+  // Save current data to localStorage
+  function saveData() {
+    try {
+      localStorage.setItem('bbb_income', incomeInput.value);
+      localStorage.setItem('bbb_partnerIncome', partnerIncomeInput.value);
+
+      const billsData = [];
+      billsContainer.querySelectorAll('.bill-entry').forEach(entry => {
+        const select = entry.querySelector('select.bill-select');
+        const amountInput = entry.querySelector('input.bill-amount');
+        if (select.value) {
+          billsData.push({ id: select.value, amount: amountInput.value });
+        }
+      });
+      localStorage.setItem('bbb_bills', JSON.stringify(billsData));
+
+      localStorage.setItem('bbb_darkMode', darkModeToggle.checked ? 'true' : 'false');
+    } catch (e) {
+      console.error('Error saving data', e);
+    }
+  }
+
+  // Create a bill entry DOM element
   function createBillEntry(selectedId = '', amountVal = '') {
     const div = document.createElement('div');
     div.className = 'bill-entry';
@@ -76,6 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshAllBillSelects();
 
       if (!input.value) input.value = getDefaultAmount(selectedId);
+      saveData();
+    });
+
+    input.addEventListener('input', () => {
+      saveData();
     });
 
     removeBtn.addEventListener('click', () => {
@@ -84,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       div.remove();
       refreshAllBillSelects();
+      saveData();
     });
 
     div.appendChild(select);
@@ -115,12 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  addBillEntry();
-
-  addBillBtn.addEventListener('click', () => {
-    addBillEntry();
-  });
-
   function addBillEntry(selectedId = '', amountVal = '') {
     if (addedBillIds.size >= predefinedBills.length && !selectedId) return;
     if (selectedId) addedBillIds.add(selectedId);
@@ -130,45 +189,81 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshAllBillSelects();
   }
 
-  budgetForm.onsubmit = (e) => {
-    e.preventDefault();
+  // Inline validation helpers
+  function clearErrors() {
+    incomeError.textContent = '';
+    partnerIncomeError.textContent = '';
+    billsContainer.querySelectorAll('.bill-entry').forEach(entry => {
+      const select = entry.querySelector('select.bill-select');
+      const amount = entry.querySelector('input.bill-amount');
+      select.style.borderColor = '';
+      amount.style.borderColor = '';
+    });
+  }
 
-    const income = parseFloat(document.getElementById('income').value) || 0;
-    const partnerIncome = parseFloat(document.getElementById('partnerIncome').value) || 0;
-    const totalIncome = income + partnerIncome;
+  function showError(input, message) {
+    input.style.borderColor = '#e53935';
+    const errorElem = input.nextElementSibling;
+    if (errorElem && errorElem.classList.contains('error-message')) {
+      errorElem.textContent = message;
+    }
+  }
 
-    if (totalIncome <= 0) {
-      alert('Please enter a valid total income.');
-      return;
+  function validateForm() {
+    clearErrors();
+    let valid = true;
+
+    if (!incomeInput.value || isNaN(incomeInput.value) || parseFloat(incomeInput.value) <= 0) {
+      showError(incomeInput, 'Please enter a valid income greater than 0.');
+      valid = false;
     }
 
-    const bills = [];
-    let valid = true;
+    if (partnerIncomeInput.value && (isNaN(partnerIncomeInput.value) || parseFloat(partnerIncomeInput.value) < 0)) {
+      showError(partnerIncomeInput, 'Please enter a valid partner income or leave blank.');
+      valid = false;
+    }
 
     const billEntries = billsContainer.querySelectorAll('.bill-entry');
     billEntries.forEach(entry => {
       const select = entry.querySelector('select.bill-select');
       const amountInput = entry.querySelector('input.bill-amount');
+
       if (!select.value) {
-        alert('Please select a bill from the dropdown.');
+        select.style.borderColor = '#e53935';
         valid = false;
-        return;
       }
-      const amount = parseFloat(amountInput.value);
-      if (isNaN(amount) || amount < 0) {
-        alert('Please enter a valid amount for all bills.');
+      if (!amountInput.value || isNaN(amountInput.value) || parseFloat(amountInput.value) < 0) {
+        amountInput.style.borderColor = '#e53935';
         valid = false;
-        return;
       }
+    });
+
+    return valid;
+  }
+
+  budgetForm.onsubmit = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const income = parseFloat(incomeInput.value) || 0;
+    const partnerIncome = parseFloat(partnerIncomeInput.value) || 0;
+    const totalIncome = income + partnerIncome;
+
+    const bills = [];
+    const billEntries = billsContainer.querySelectorAll('.bill-entry');
+    billEntries.forEach(entry => {
+      const select = entry.querySelector('select.bill-select');
+      const amountInput = entry.querySelector('input.bill-amount');
       bills.push({
         id: select.value,
         name: predefinedBills.find(b => b.id === select.value).label,
-        amount,
+        amount: parseFloat(amountInput.value),
         category: select.value.charAt(0).toUpperCase() + select.value.slice(1)
       });
     });
-
-    if (!valid) return;
 
     const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
     const remaining = totalIncome - totalExpenses;
@@ -176,9 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
     summaryTitle.classList.remove('hidden');
     chartTitle.classList.remove('hidden');
     adviceTitle.classList.remove('hidden');
-    exportBtn.classList.remove('hidden');
+    exportPdfBtn.classList.remove('hidden');
+    exportCsvBtn.classList.remove('hidden');
     progressSection.classList.remove('hidden');
-
     resultsSection.classList.remove('hidden');
 
     summaryDiv.innerHTML = `
@@ -188,14 +283,17 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     updateProgressBar(totalIncome, totalExpenses);
-
     generateChart(bills);
-
     adviceDiv.innerHTML = generateAdvice(remaining, bills, totalIncome);
+
+    saveData();
   };
 
-  exportBtn.onclick = () => {
-    exportBtn.style.display = 'none';
+  // Export PDF
+  exportPdfBtn.onclick = () => {
+    exportPdfBtn.style.display = 'none';
+    exportCsvBtn.style.display = 'none';
+
     html2pdf().set({
       margin: 0.5,
       filename: 'BrokeBudgetBuddy_Summary.pdf',
@@ -204,8 +302,53 @@ document.addEventListener('DOMContentLoaded', () => {
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     }).from(resultsSection).save()
       .finally(() => {
-        exportBtn.style.display = 'inline-block';
+        exportPdfBtn.style.display = 'inline-block';
+        exportCsvBtn.style.display = 'inline-block';
       });
+  };
+
+  // Export CSV
+  exportCsvBtn.onclick = () => {
+    const income = parseFloat(incomeInput.value) || 0;
+    const partnerIncome = parseFloat(partnerIncomeInput.value) || 0;
+    const totalIncome = income + partnerIncome;
+
+    const bills = [];
+    billsContainer.querySelectorAll('.bill-entry').forEach(entry => {
+      const select = entry.querySelector('select.bill-select');
+      const amountInput = entry.querySelector('input.bill-amount');
+      if (select.value) {
+        bills.push({
+          name: predefinedBills.find(b => b.id === select.value).label,
+          amount: parseFloat(amountInput.value)
+        });
+      }
+    });
+
+    const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
+    const remaining = totalIncome - totalExpenses;
+
+    let csvContent = `Budget Summary\n`;
+    csvContent += `Total Income,$${totalIncome.toFixed(2)}\n`;
+    csvContent += `Total Expenses,$${totalExpenses.toFixed(2)}\n`;
+    csvContent += `Remaining,$${remaining.toFixed(2)}\n\n`;
+
+    csvContent += `Bills Breakdown\nName,Amount\n`;
+    bills.forEach(bill => {
+      csvContent += `${bill.name},$${bill.amount.toFixed(2)}\n`;
+    });
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'BrokeBudgetBuddy_Summary.csv';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   function updateProgressBar(income, expenses) {
@@ -214,13 +357,13 @@ document.addEventListener('DOMContentLoaded', () => {
     progressBar.style.width = percentage + '%';
 
     if (percentage < 60) {
-      progressBar.style.backgroundColor = '#4caf50';
+      progressBar.style.backgroundColor = '#4caf50'; // green
       progressText.textContent = 'You are under budget. Great job!';
     } else if (percentage >= 60 && percentage <= 90) {
-      progressBar.style.backgroundColor = '#ffa500';
+      progressBar.style.backgroundColor = '#ffa500'; // orange
       progressText.textContent = 'Careful — you’re nearing your limit.';
     } else {
-      progressBar.style.backgroundColor = '#e53935';
+      progressBar.style.backgroundColor = '#e53935'; // red
       progressText.textContent = 'You are over budget!';
     }
   }
@@ -258,33 +401,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- UPDATED generateAdvice function ---
   function generateAdvice(remaining, bills, income) {
     let advice = '';
 
     if (remaining < 0) {
-      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider these steps:</p>`;
+      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider reducing non-essential expenses or increasing your income.</p>`;
       advice += `<ul>
-        <li>Review and cut non-essential expenses (e.g., subscriptions, dining out).</li>
-        <li>Prioritize debt repayments with the highest interest rates.</li>
-        <li>Look for ways to increase your income through side gigs or negotiating raises.</li>
-        <li>Consider creating a stricter budget plan and tracking your spending daily.</li>
+        <li>Review subscriptions and memberships; cancel unused ones.</li>
+        <li>Look for cheaper alternatives on utilities or phone plans.</li>
+        <li>Create a debt repayment plan to reduce interest payments.</li>
+        <li>Consider increasing income streams if possible.</li>
       </ul>`;
     } else if (remaining < income * 0.1) {
-      advice += `<p>⚠️ You have limited savings potential. Here's what you can do:</p>`;
+      advice += `<p>⚠️ You have limited savings potential. Look for ways to trim expenses and save more.</p>`;
       advice += `<ul>
-        <li>Track every expense carefully to identify small savings opportunities.</li>
-        <li>Set up automatic transfers to a savings account, even if small.</li>
-        <li>Reduce discretionary spending, like entertainment or dining out.</li>
-        <li>Build an emergency fund starting with at least $500.</li>
+        <li>Track spending closely for small unnecessary purchases.</li>
+        <li>Cook at home instead of eating out to save money.</li>
+        <li>Set a monthly savings goal and automate transfers.</li>
+        <li>Check for better deals on recurring bills.</li>
       </ul>`;
     } else {
-      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider these smart moves:</p>`;
+      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider saving or investing this amount monthly.</p>`;
       advice += `<ul>
-        <li>Start or increase contributions to an emergency fund (3-6 months of expenses).</li>
-        <li>Consider investing in retirement accounts or other investment vehicles.</li>
-        <li>Set short- and long-term financial goals (vacation, home, education).</li>
-        <li>Continue to monitor your spending and adjust budget as needed.</li>
+        <li>Build an emergency fund covering 3-6 months of expenses.</li>
+        <li>Look into low-risk investment options for steady growth.</li>
+        <li>Plan for future goals like homeownership or retirement.</li>
+        <li>Continue tracking spending to maintain healthy finances.</li>
       </ul>`;
     }
 
@@ -296,22 +438,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     for (const [cat, amt] of Object.entries(categoryTotals)) {
       if (amt > totalExpenses * 0.4) {
-        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. Consider:</p>`;
-        if (cat.toLowerCase().includes('rent')) {
-          advice += `<ul><li>Exploring cheaper housing options or negotiating rent.</li></ul>`;
-        } else if (cat.toLowerCase().includes('debt')) {
-          advice += `<ul><li>Reviewing your debt repayment plan and possibly consolidating high-interest debts.</li></ul>`;
-        } else if (cat.toLowerCase().includes('subscriptions')) {
-          advice += `<ul><li>Canceling unused or less important subscriptions.</li></ul>`;
-        } else if (cat.toLowerCase().includes('groceries')) {
-          advice += `<ul><li>Planning meals and using discounts/coupons to reduce grocery bills.</li></ul>`;
-        } else {
-          advice += `<ul><li>Reviewing this category to find possible savings.</li></ul>`;
-        }
+        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. You might want to review this expense.</p>`;
       }
     }
 
     advice += `<p><em>Disclaimer: This advice is generated to help you plan better but does not replace professional financial consulting.</em></p>`;
     return advice;
   }
+
+  // Dark mode toggle logic
+  darkModeToggle.addEventListener('change', () => {
+    if (darkModeToggle.checked) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    saveData();
+  });
+
+  // Add bill button listener
+  addBillBtn.addEventListener('click', () => {
+    addBillEntry();
+    saveData();
+  });
+
+  // On income or partner income input, save data immediately
+  incomeInput.addEventListener('input', saveData);
+  partnerIncomeInput.addEventListener('input', saveData);
+
+  // Initialize
+  loadSavedData();
 });
