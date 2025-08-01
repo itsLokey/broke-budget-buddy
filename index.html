@@ -1,65 +1,57 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Broke Budget Buddy</h1>
+    <form id="budgetForm">
+      <label for="income">Monthly Income:</label>
+      <input type="number" id="income" name="income" required />
 
-    <form id="budget-form">
-      <div class="income-inputs">
-        <label>Your Income: <input type="number" id="user-income" required /></label>
-        <label>Partner Income (optional): <input type="number" id="partner-income" /></label>
-      </div>
+      <label for="billSelect">Add a Bill:</label>
+      <select id="billSelect">
+        <option value="">-- Select Bill Type --</option>
+        <option value="Rent">Rent</option>
+        <option value="Utilities">Utilities</option>
+        <option value="Internet">Internet</option>
+        <option value="Phone">Phone</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Transport">Transport</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" id="billAmount" placeholder="Amount" />
+      <button type="button" id="addBill">Add Bill</button>
 
-      <div id="bills-container">
-        <label>Add a Bill:</label>
-        <div class="bill-group">
-          <select class="bill-name">
-            <option value="Rent">Rent</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Phone">Phone</option>
-            <option value="Internet">Internet</option>
-            <option value="Insurance">Insurance</option>
-            <option value="Debt">Debt Repayment</option>
-            <option value="Subscriptions">Subscriptions</option>
-            <option value="Childcare">Childcare</option>
-          </select>
-          <input type="number" class="bill-amount" placeholder="Amount" required />
-          <button type="button" class="remove-bill">X</button>
-        </div>
-      </div>
+      <div id="billsContainer"></div>
 
-      <button type="button" id="add-bill">Add Another Bill</button>
       <button type="submit">Get Budget</button>
     </form>
 
-    <div id="results" style="display:none;">
+    <div id="results" class="hidden">
       <h2>Budget Summary</h2>
-      <div id="summary"></div>
+      <p id="summary"></p>
 
       <h2>Monthly Budget Usage</h2>
-      <canvas id="budget-chart"></canvas>
+      <canvas id="budgetChart"></canvas>
 
       <h2>Spending Breakdown</h2>
-      <ul id="spending-breakdown"></ul>
+      <ul id="breakdown"></ul>
 
       <h2>Smart Financial Advice</h2>
-      <div id="smart-advice"></div>
+      <div id="advice"></div>
 
-      <button id="export-pdf">Export as PDF</button>
+      <button id="exportPDF">Export as PDF</button>
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
