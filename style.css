@@ -8,6 +8,7 @@ body {
   color: #333;
   margin: 0;
   padding: 20px;
+  transition: background-color 0.3s, color 0.3s;
 }
 .container {
   max-width: 600px;
@@ -16,6 +17,7 @@ body {
   padding: 25px 30px;
   border-radius: 10px;
   box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 h1 {
   text-align: center;
@@ -34,18 +36,29 @@ form label {
   margin-top: 15px;
   font-weight: 600;
 }
-form input[type="number"] {
+form input[type="number"],
+form select {
   width: 100%;
   padding: 10px 12px;
   margin-top: 6px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, background-color 0.3s, color 0.3s;
 }
-form input[type="number"]:focus {
+form input[type="number"]:focus,
+form select:focus {
   border-color: #2a7de1;
   outline: none;
+}
+
+/* Error message */
+.error-message {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 2px;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 /* Bills Container */
@@ -67,7 +80,7 @@ form input[type="number"]:focus {
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, background-color 0.3s, color 0.3s;
 }
 .bill-select:focus {
   border-color: #2a7de1;
@@ -80,7 +93,7 @@ form input[type="number"]:focus {
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, background-color 0.3s, color 0.3s;
 }
 .bill-amount:focus {
   border-color: #2a7de1;
@@ -135,6 +148,24 @@ form input[type="number"]:focus {
   background: #3a8a37;
 }
 
+/* Export buttons */
+#export-pdf-btn, #export-csv-btn {
+  background: #2a7de1;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: background-color 0.3s;
+  display: inline-block;
+  margin-right: 10px;
+}
+#export-pdf-btn:hover, #export-csv-btn:hover {
+  background: #1c56a1;
+}
+
 /* Results section */
 #results {
   margin-top: 40px;
@@ -152,6 +183,7 @@ form input[type="number"]:focus {
   height: 25px;
   margin-top: 8px;
   overflow: hidden;
+  transition: background-color 0.3s;
 }
 #progress-bar {
   height: 100%;
@@ -166,21 +198,11 @@ form input[type="number"]:focus {
   text-align: center;
 }
 
-/* Export PDF button */
-#export-pdf-btn {
-  background: #2a7de1;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 25px;
-  transition: background-color 0.3s;
-  display: inline-block;
-}
-#export-pdf-btn:hover {
-  background: #1c56a1;
+/* Advice lists styling */
+#advice ul {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding-left: 20px;
 }
 
 /* Footer */
@@ -190,6 +212,81 @@ footer {
   color: #999;
   font-size: 14px;
   user-select: none;
+  transition: color 0.3s;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-mode .container {
+  background: #1e1e1e;
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode h1 {
+  color: #90caf9;
+}
+
+body.dark-mode .subtitle {
+  color: #bbb;
+}
+
+body.dark-mode form input[type="number"],
+body.dark-mode form select {
+  background: #2c2c2c;
+  border-color: #555;
+  color: #eee;
+}
+
+body.dark-mode form input[type="number"]:focus,
+body.dark-mode form select:focus {
+  border-color: #90caf9;
+  outline: none;
+}
+
+body.dark-mode .bill-select,
+body.dark-mode .bill-amount {
+  background: #2c2c2c;
+  border-color: #555;
+  color: #eee;
+}
+
+body.dark-mode .remove-bill-btn {
+  background: #ef5350;
+}
+
+body.dark-mode .remove-bill-btn:hover {
+  background: #b71c1c;
+}
+
+body.dark-mode .add-bill-btn,
+body.dark-mode #export-pdf-btn,
+body.dark-mode #export-csv-btn,
+body.dark-mode #submit-btn {
+  background: #90caf9;
+  color: #121212;
+}
+
+body.dark-mode .add-bill-btn:hover,
+body.dark-mode #export-pdf-btn:hover,
+body.dark-mode #export-csv-btn:hover,
+body.dark-mode #submit-btn:hover {
+  background: #64b5f6;
+}
+
+body.dark-mode #progress-bar-wrapper {
+  background: #333;
+}
+
+body.dark-mode #progress-bar {
+  border-radius: 10px 0 0 10px;
+}
+
+body.dark-mode footer {
+  color: #666;
 }
 
 /* Responsive */
