@@ -10,40 +10,38 @@
   <div class="container">
     <h1>Broke Budget Buddy</h1>
     <form id="budget-form">
-      <div class="income-section">
-        <label for="income">Your Income ($):</label>
+      <div class="form-section">
+        <label for="income">Monthly Income:</label>
         <input type="number" id="income" required />
-        <label for="partner-income">Partner Income ($):</label>
-        <input type="number" id="partner-income" placeholder="Optional" />
-        <label for="extra-income">Additional Income ($):</label>
-        <input type="number" id="extra-income" placeholder="Optional" />
       </div>
 
-      <div class="bill-section">
-        <label>Select Bill Type and Enter Amount:</label>
-        <div id="bill-list">
-          <div class="bill-field">
-            <select class="bill-type">
+      <div class="form-section">
+        <label for="partnerIncome">Partner/Spousal Income:</label>
+        <input type="number" id="partnerIncome" />
+      </div>
+
+      <div class="form-section">
+        <label>Bills:</label>
+        <div id="bills-section">
+          <div class="bill">
+            <select class="bill-name">
               <option value="Rent">Rent</option>
-              <option value="Utilities">Utilities</option>
               <option value="Groceries">Groceries</option>
-              <option value="Transportation">Transportation</option>
-              <option value="Phone">Phone</option>
+              <option value="Utilities">Utilities</option>
               <option value="Internet">Internet</option>
-              <option value="Childcare">Childcare</option>
-              <option value="Debt">Debt</option>
-              <option value="Subscriptions">Subscriptions</option>
+              <option value="Phone">Phone</option>
               <option value="Insurance">Insurance</option>
-              <option value="Other">Other</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Childcare">Childcare</option>
+              <option value="Debt Repayment">Debt Repayment</option>
             </select>
-            <input type="number" class="bill-amount" placeholder="$ Amount" />
-            <button type="button" class="remove-bill">✖</button>
+            <input type="number" class="bill-amount" placeholder="Amount" required />
           </div>
         </div>
-        <button type="button" id="add-bill">+ Add Bill</button>
+        <button type="button" id="addBill">Add Another Bill</button>
       </div>
 
-      <button type="submit" id="get-budget">Get Budget</button>
+      <button type="submit">Get Budget</button>
     </form>
 
     <div id="results" class="hidden">
@@ -51,15 +49,15 @@
       <div id="summary"></div>
 
       <h2>Monthly Budget Usage</h2>
-      <canvas id="budgetChart" width="400" height="200"></canvas>
+      <canvas id="budgetChart"></canvas>
 
       <h2>Spending Breakdown</h2>
-      <ul id="breakdown-list"></ul>
+      <div id="breakdown"></div>
 
       <h2>Smart Financial Advice</h2>
       <div id="advice"></div>
 
-      <button id="export">Export as PDF</button>
+      <button id="exportPDF">Export as PDF</button>
     </div>
   </div>
 
