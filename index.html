@@ -18,36 +18,37 @@
       <label for="partnerIncome">Partner's Monthly Income (optional):</label>
       <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
 
-      <fieldset>
-        <legend>Add your bills</legend>
-        <div id="bill-entry">
-          <select id="bill-select">
-            <option value="" disabled selected>-- Select a bill --</option>
-            <option value="Rent / Mortgage" data-default="1200">Rent / Mortgage</option>
-            <option value="Utilities (Electricity, Water)" data-default="150">Utilities (Electricity, Water)</option>
-            <option value="Internet / Cable" data-default="60">Internet / Cable</option>
-            <option value="Phone" data-default="50">Phone</option>
-            <option value="Groceries" data-default="400">Groceries</option>
-            <option value="Transport / Gas / Public Transit" data-default="150">Transport / Gas / Public Transit</option>
-            <option value="Insurance (Health, Car, Home)" data-default="200">Insurance (Health, Car, Home)</option>
-            <option value="Subscriptions (Netflix, Spotify, etc.)" data-default="50">Subscriptions</option>
-            <option value="Debt Payments (Loans, Credit Cards)" data-default="300">Debt Payments</option>
-            <option value="Other" data-default="0">Other</option>
-          </select>
-          <input type="number" id="bill-amount" placeholder="Amount" min="0" />
-          <button type="button" id="add-bill-btn">Add Bill</button>
-        </div>
-        <ul id="bills-list" class="bills-list"></ul>
-      </fieldset>
+      <label for="bill-selector">Add a Bill:</label>
+      <div class="bill-input-group">
+        <select id="bill-selector">
+          <option value="">Select a bill</option>
+          <option value="Rent / Mortgage">Rent / Mortgage</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Internet / Cable">Internet / Cable</option>
+          <option value="Phone">Phone</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Transport">Transport</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Subscriptions">Subscriptions</option>
+          <option value="Debt Payments">Debt Payments</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="number" id="bill-amount" placeholder="Amount ($)" />
+        <button type="button" id="add-bill-btn">Add</button>
+      </div>
+
+      <ul id="bill-list"></ul>
 
       <button type="submit" id="submit-btn">Get Budget</button>
     </form>
 
     <section id="results" class="hidden">
-      <h2>Budget Summary</h2>
-      <div id="summary"></div>
+      <div class="results-section-content hidden-content">
+        <h2 id="summary-title">Budget Summary</h2>
+        <div id="summary"></div>
+      </div>
 
-      <div id="progress-section">
+      <div id="progress-section" class="hidden-content">
         <label for="progress-bar">Monthly Budget Usage:</label>
         <div id="progress-bar-wrapper">
           <div id="progress-bar"></div>
@@ -55,13 +56,17 @@
         <p id="progress-text"></p>
       </div>
 
-      <h2>Spending Breakdown</h2>
-      <canvas id="budgetChart" width="400" height="400"></canvas>
+      <div class="results-section-content hidden-content">
+        <h2 id="breakdown-title">Spending Breakdown</h2>
+        <canvas id="budgetChart" width="400" height="400"></canvas>
+      </div>
 
-      <h2>Smart Financial Advice</h2>
-      <div id="advice"></div>
+      <div class="results-section-content hidden-content">
+        <h2 id="advice-title">Smart Financial Advice</h2>
+        <div id="advice"></div>
+      </div>
 
-      <button id="export-pdf-btn">Export as PDF</button>
+      <button id="export-pdf-btn" class="hidden-content">Export as PDF</button>
     </section>
   </div>
 
