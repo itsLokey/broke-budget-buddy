@@ -2,52 +2,114 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h1>Broke Budget Buddy</h1>
-    <p>Your smarter, friendlier budget planner.</p>
+    <p class="subtitle">Your smarter, friendlier budget planner</p>
 
     <form id="budget-form">
-      <label for="income">Your Monthly Income:</label>
-      <input type="number" id="income" required />
+      <label for="income">Your Monthly Income ($):</label>
+      <input type="number" id="income" placeholder="Enter your income" required />
 
       <label for="partnerIncome">Partner's Monthly Income (optional):</label>
-      <input type="number" id="partnerIncome" />
+      <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
 
-      <div id="bills-container">
-        <label>Bills:</label>
-        <div class="bill-group">
-          <input type="text" placeholder="e.g. Rent" class="bill-name" required />
-          <select class="bill-tag">
-            <option value="Rent">Rent</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Other">Other</option>
-          </select>
-          <input type="number" placeholder="Amount" class="bill-amount" required />
-          <button type="button" class="remove-bill">✕</button>
+      <fieldset>
+        <legend>Select your bills</legend>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-rent" data-default="1200" />
+          <label for="bill-rent">Rent / Mortgage</label>
+          <input type="number" class="bill-amount" id="amount-rent" placeholder="Amount" disabled />
         </div>
-      </div>
-      <button type="button" id="add-bill">Add Another Bill</button>
 
-      <button type="submit" id="submit">Get Budget</button>
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-utilities" data-default="150" />
+          <label for="bill-utilities">Utilities (Electricity, Water)</label>
+          <input type="number" class="bill-amount" id="amount-utilities" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-internet" data-default="60" />
+          <label for="bill-internet">Internet / Cable</label>
+          <input type="number" class="bill-amount" id="amount-internet" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-phone" data-default="50" />
+          <label for="bill-phone">Phone</label>
+          <input type="number" class="bill-amount" id="amount-phone" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-groceries" data-default="400" />
+          <label for="bill-groceries">Groceries</label>
+          <input type="number" class="bill-amount" id="amount-groceries" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-transport" data-default="150" />
+          <label for="bill-transport">Transport / Gas / Public Transit</label>
+          <input type="number" class="bill-amount" id="amount-transport" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-insurance" data-default="200" />
+          <label for="bill-insurance">Insurance (Health, Car, Home)</label>
+          <input type="number" class="bill-amount" id="amount-insurance" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-subscriptions" data-default="50" />
+          <label for="bill-subscriptions">Subscriptions (Netflix, Spotify, etc.)</label>
+          <input type="number" class="bill-amount" id="amount-subscriptions" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-debt" data-default="300" />
+          <label for="bill-debt">Debt Payments (Loans, Credit Cards)</label>
+          <input type="number" class="bill-amount" id="amount-debt" placeholder="Amount" disabled />
+        </div>
+
+        <div class="bill-checkbox">
+          <input type="checkbox" id="bill-other" data-default="0" />
+          <label for="bill-other">Other</label>
+          <input type="number" class="bill-amount" id="amount-other" placeholder="Amount" disabled />
+        </div>
+      </fieldset>
+
+      <button type="submit" id="submit-btn">Get Budget</button>
     </form>
 
-    <div id="budget-results" class="hidden">
-      <h2>Budget Breakdown</h2>
+    <section id="results" class="hidden">
+      <h2>Budget Summary</h2>
       <div id="summary"></div>
-      <h2>Smart Financial Tips</h2>
-      <div id="tips"></div>
-      <button id="export-pdf">Export as PDF</button>
-    </div>
+
+      <div id="progress-section">
+        <label for="progress-bar">Monthly Budget Usage:</label>
+        <div id="progress-bar-wrapper">
+          <div id="progress-bar"></div>
+        </div>
+        <p id="progress-text"></p>
+      </div>
+
+      <h2>Spending Breakdown</h2>
+      <canvas id="budgetChart" width="400" height="400"></canvas>
+
+      <h2>Smart Financial Advice</h2>
+      <div id="advice"></div>
+
+      <button id="export-pdf-btn">Export as PDF</button>
+    </section>
   </div>
 
   <footer>Built by Ben Becker</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
