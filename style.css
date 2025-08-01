@@ -1,69 +1,190 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f2f4f8;
-  margin: 0;
-  padding: 0;
+/* General container */
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
 }
 
-.container {
-  max-width: 700px;
-  margin: 3rem auto;
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-
-h1, h2 {
+/* Headings */
+h1 {
   text-align: center;
   color: #2c3e50;
+  margin-bottom: 0.25rem;
 }
 
+.subtitle {
+  text-align: center;
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+/* Form styles */
 form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
-.form-section {
+label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  display: block;
+  color: #34495e;
+}
+
+input[type="number"], select {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1.8px solid #ccc;
+  transition: border-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="number"]:focus, select:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+/* Bills section container */
+#bills-section {
   display: flex;
   flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
 }
 
-input, select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-top: 0.3rem;
-}
-
-button {
-  padding: 0.8rem;
-  font-size: 1rem;
-  border: none;
-  background: #3498db;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #2980b9;
-}
-
-#results {
-  margin-top: 2rem;
-}
-
-.hidden {
-  display: none;
-}
-
+/* Each bill row */
 .bill {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.bill select.bill-name {
+  flex: 2;
+}
+
+.bill input.bill-amount {
+  flex: 1;
+  max-width: 120px;
+}
+
+/* Remove button */
+.remove-bill-btn {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  user-select: none;
+}
+
+.remove-bill-btn:hover {
+  background: #c0392b;
+}
+
+/* Add Bill button */
+#addBill {
+  align-self: flex-start;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background-color: #2980b9;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+#addBill:hover {
+  background-color: #1f618d;
+}
+
+/* Submit button */
+button[type="submit"] {
+  background-color: #27ae60;
+  border: none;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #1e8449;
+}
+
+/* Results section */
+#results {
+  margin-top: 2rem;
+  background: #f7f9fc;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+#summary p, #breakdown p, #advice p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Chart canvas */
+#budgetChart {
+  max-width: 400px;
+  margin: 1rem auto;
+  display: block;
+}
+
+/* Export PDF button */
+#exportPDF {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 1rem auto 0 auto;
+}
+
+#exportPDF:hover {
+  background-color: #1f618d;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .bill {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bill select.bill-name,
+  .bill input.bill-amount {
+    max-width: 100%;
+  }
+
+  .remove-bill-btn {
+    align-self: flex-end;
+    margin-top: 0.3rem;
+  }
 }
