@@ -8,25 +8,72 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartCtx = document.getElementById('budgetChart').getContext('2d');
   const exportBtn = document.getElementById('export-pdf-btn');
 
-  // Keep track of Chart.js chart instance
+  const billSelect = document.getElementById('bill-select');
+  const billAmountInput = document.getElementById('bill-amount');
+  const addBillBtn = document.getElementById('add-bill-btn');
+  const billsList = document.getElementById('bills-list');
+
+  // Array to keep track of added bills
+  let bills = [];
+
+  // Chart.js instance
   let budgetChart = null;
 
-  // Enable/disable amount inputs based on checkbox
-  const billCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="bill-"]');
-  billCheckboxes.forEach(box => {
-    box.addEventListener('change', () => {
-      const amountInput = document.getElementById('amount-' + box.id.replace('bill-', ''));
-      if (box.checked) {
-        amountInput.disabled = false;
-        // Pre-fill with default if empty
-        if (!amountInput.value) amountInput.value = box.dataset.default;
-      } else {
-        amountInput.disabled = true;
-        amountInput.value = '';
-      }
-    });
+  // Pre-fill amount input when user selects a bill
+  billSelect.addEventListener('change', () => {
+    const selectedOption = billSelect.options[billSelect.selectedIndex];
+    billAmountInput.value = selectedOption.dataset.default || '';
+    billAmountInput.focus();
   });
 
+  // Add bill button
+  addBillBtn.addEventListener('click', () => {
+    const billName = billSelect.value;
+    const billAmount = parseFloat(billAmountInput.value);
+
+    if (!billName) {
+      alert('Please select a bill.');
+      return;
+    }
+    if (isNaN(billAmount) || billAmount < 0) {
+      alert('Please enter a valid amount.');
+      return;
+    }
+    // Prevent duplicate bills
+    if (bills.some(b => b.name === billName)) {
+      alert('This bill is already added.');
+      return;
+    }
+
+    bills.push({ name: billName, amount: billAmount });
+    renderBillsList();
+
+    // Reset inputs
+    billSelect.value = '';
+    billAmountInput.value = '';
+  });
+
+  // Render bills list with remove buttons
+  function renderBillsList() {
+    billsList.innerHTML = '';
+    bills.forEach((bill, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${bill.name}: $${bill.amount.toFixed(2)}`;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'Remove';
+      removeBtn.classList.add('remove-btn');
+      removeBtn.addEventListener('click', () => {
+        bills.splice(index, 1);
+        renderBillsList();
+      });
+
+      li.appendChild(removeBtn);
+      billsList.appendChild(li);
+    });
+  }
+
+  // Calculate and display budget when form submits
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -35,54 +82,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalIncome = income + partnerIncome;
 
     if (totalIncome <= 0) {
-      alert("Please enter a valid income.");
+      alert('Please enter a valid income.');
       return;
     }
 
-    let bills = [];
-    billCheckboxes.forEach(box => {
-      if (box.checked) {
-        const id = box.id.replace('bill-', '');
-        const amountInput = document.getElementById('amount-' + id);
-        let amount = parseFloat(amountInput.value);
-        if (isNaN(amount) || amount < 0) amount = 0;
+    if (bills.length === 0) {
+      alert('Please add at least one bill.');
+      return;
+    }
 
-        bills.push({
-          name: box.nextElementSibling.textContent,
-          amount,
-          category: id.charAt(0).toUpperCase() + id.slice(1) // Simple category from id
-        });
-      }
-    });
-
-    // Calculate total expenses
     const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
     const remaining = totalIncome - totalExpenses;
 
-    // Show results section
     resultsSection.classList.remove('hidden');
 
-    // Display summary
     summaryDiv.innerHTML = `
       <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
       <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
       <p><strong>Remaining:</strong> $${remaining.toFixed(2)}</p>
     `;
 
-    // Update progress bar
     updateProgressBar(totalIncome, totalExpenses);
-
-    // Draw chart
     drawChart(bills);
-
-    // Generate advice
     adviceDiv.innerHTML = generateAdvice(remaining, bills, totalIncome);
   });
 
+  // Export PDF button
   exportBtn.addEventListener('click', () => {
     const element = resultsSection;
-    // Remove buttons temporarily to clean PDF
-    exportBtn.style.display = 'none';
+
+    exportBtn.style.display = 'none'; // hide button during export
 
     html2pdf().set({
       margin: 0.5,
@@ -92,10 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     }).from(element).save()
     .finally(() => {
-      exportBtn.style.display = 'inline-block';
+      exportBtn.style.display = 'inline-block'; // show button again
     });
   });
 
+  // Progress bar update
   function updateProgressBar(income, expenses) {
     const percentage = Math.min((expenses / income) * 100, 150);
     progressBar.style.width = percentage + '%';
@@ -112,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Chart drawing
   function drawChart(bills) {
     const labels = bills.map(b => b.name);
     const data = bills.map(b => b.amount);
@@ -151,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Advice generation
   function generateAdvice(remaining, bills, income) {
     let advice = '';
 
@@ -162,20 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
       advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider saving or investing this amount monthly.</p>`;
     }
 
-    // Highlight any category taking too big a chunk (>40% of expenses)
     const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
     const categoryTotals = {};
     bills.forEach(b => {
-      categoryTotals[b.category] = (categoryTotals[b.category] || 0) + b.amount;
+      // Extract first word or full string as category (you can customize)
+      const cat = b.name.split(' ')[0];
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + b.amount;
     });
 
     for (const [cat, amt] of Object.entries(categoryTotals)) {
       if (amt > totalExpenses * 0.4) {
-        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. You might want to review this expense.</p>`;
-      }
-    }
-
-    advice += `<p><em>Disclaimer: This advice is generated to help you plan better but does not replace professional financial consulting.</em></p>`;
-    return advice;
-  }
-});
+        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for
