@@ -1,100 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('budget-form');
+  const billSelector = document.getElementById('bill-selector');
+  const billAmount = document.getElementById('bill-amount');
+  const addBillBtn = document.getElementById('add-bill-btn');
+  const billList = document.getElementById('bill-list');
   const resultsSection = document.getElementById('results');
   const summaryDiv = document.getElementById('summary');
-  const adviceDiv = document.getElementById('advice');
   const progressBar = document.getElementById('progress-bar');
   const progressText = document.getElementById('progress-text');
-  const chartCtx = document.getElementById('budgetChart').getContext('2d');
+  const adviceDiv = document.getElementById('advice');
   const exportBtn = document.getElementById('export-pdf-btn');
+  const chartCanvas = document.getElementById('budgetChart');
 
-  const billSelect = document.getElementById('bill-select');
-  const billAmountInput = document.getElementById('bill-amount');
-  const addBillBtn = document.getElementById('add-bill-btn');
-  const billsList = document.getElementById('bills-list');
-
-  // Array to keep track of added bills
+  let chart;
   let bills = [];
 
-  // Chart.js instance
-  let budgetChart = null;
+  addBillBtn.onclick = () => {
+    const name = billSelector.value;
+    const amount = parseFloat(billAmount.value);
 
-  // Pre-fill amount input when user selects a bill
-  billSelect.addEventListener('change', () => {
-    const selectedOption = billSelect.options[billSelect.selectedIndex];
-    billAmountInput.value = selectedOption.dataset.default || '';
-    billAmountInput.focus();
-  });
+    if (!name || isNaN(amount) || amount <= 0) return;
 
-  // Add bill button
-  addBillBtn.addEventListener('click', () => {
-    const billName = billSelect.value;
-    const billAmount = parseFloat(billAmountInput.value);
+    bills.push({ name, amount });
 
-    if (!billName) {
-      alert('Please select a bill.');
-      return;
-    }
-    if (isNaN(billAmount) || billAmount < 0) {
-      alert('Please enter a valid amount.');
-      return;
-    }
-    // Prevent duplicate bills
-    if (bills.some(b => b.name === billName)) {
-      alert('This bill is already added.');
-      return;
-    }
+    const li = document.createElement('li');
+    li.textContent = `${name}: $${amount.toFixed(2)}`;
+    billList.appendChild(li);
 
-    bills.push({ name: billName, amount: billAmount });
-    renderBillsList();
+    billSelector.value = '';
+    billAmount.value = '';
+  };
 
-    // Reset inputs
-    billSelect.value = '';
-    billAmountInput.value = '';
-  });
-
-  // Render bills list with remove buttons
-  function renderBillsList() {
-    billsList.innerHTML = '';
-    bills.forEach((bill, index) => {
-      const li = document.createElement('li');
-      li.textContent = `${bill.name}: $${bill.amount.toFixed(2)}`;
-
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = 'Remove';
-      removeBtn.classList.add('remove-btn');
-      removeBtn.addEventListener('click', () => {
-        bills.splice(index, 1);
-        renderBillsList();
-      });
-
-      li.appendChild(removeBtn);
-      billsList.appendChild(li);
-    });
-  }
-
-  // Calculate and display budget when form submits
-  form.addEventListener('submit', (e) => {
+  form.onsubmit = (e) => {
     e.preventDefault();
 
     const income = parseFloat(document.getElementById('income').value) || 0;
     const partnerIncome = parseFloat(document.getElementById('partnerIncome').value) || 0;
     const totalIncome = income + partnerIncome;
 
-    if (totalIncome <= 0) {
-      alert('Please enter a valid income.');
-      return;
-    }
-
-    if (bills.length === 0) {
-      alert('Please add at least one bill.');
-      return;
-    }
-
-    const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
+    const totalExpenses = bills.reduce((sum, bill) => sum + bill.amount, 0);
     const remaining = totalIncome - totalExpenses;
-
-    resultsSection.classList.remove('hidden');
 
     summaryDiv.innerHTML = `
       <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
@@ -102,106 +47,38 @@ document.addEventListener('DOMContentLoaded', () => {
       <p><strong>Remaining:</strong> $${remaining.toFixed(2)}</p>
     `;
 
-    updateProgressBar(totalIncome, totalExpenses);
-    drawChart(bills);
-    adviceDiv.innerHTML = generateAdvice(remaining, bills, totalIncome);
-  });
+    const percentUsed = totalIncome ? Math.min((totalExpenses / totalIncome) * 100, 100) : 0;
+    progressBar.style.width = `${percentUsed}%`;
+    progressText.textContent = `You've used ${percentUsed.toFixed(1)}% of your income.`;
 
-  // Export PDF button
-  exportBtn.addEventListener('click', () => {
-    const element = resultsSection;
+    adviceDiv.textContent =
+      remaining > 0
+        ? "Great! You're spending less than you earn."
+        : "Warning: You're spending more than your income.";
 
-    exportBtn.style.display = 'none'; // hide button during export
+    resultsSection.classList.remove('hidden');
+    document.querySelectorAll('.hidden-content').forEach(el => el.style.display = '');
 
-    html2pdf().set({
-      margin: 0.5,
-      filename: 'BrokeBudgetBuddy_Summary.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    }).from(element).save()
-    .finally(() => {
-      exportBtn.style.display = 'inline-block'; // show button again
-    });
-  });
-
-  // Progress bar update
-  function updateProgressBar(income, expenses) {
-    const percentage = Math.min((expenses / income) * 100, 150);
-    progressBar.style.width = percentage + '%';
-
-    if (percentage < 70) {
-      progressBar.style.backgroundColor = '#4CAF50'; // green
-      progressText.textContent = 'You are under budget. Great job!';
-    } else if (percentage >= 70 && percentage <= 100) {
-      progressBar.style.backgroundColor = '#FFA500'; // orange
-      progressText.textContent = 'Careful — you’re nearing your limit.';
-    } else {
-      progressBar.style.backgroundColor = '#E53935'; // red
-      progressText.textContent = 'You are over budget!';
-    }
-  }
-
-  // Chart drawing
-  function drawChart(bills) {
-    const labels = bills.map(b => b.name);
-    const data = bills.map(b => b.amount);
-
-    if (budgetChart) {
-      budgetChart.destroy();
-    }
-
-    budgetChart = new Chart(chartCtx, {
-      type: 'doughnut',
+    if (chart) chart.destroy();
+    chart = new Chart(chartCanvas, {
+      type: 'pie',
       data: {
-        labels,
+        labels: bills.map(b => b.name),
         datasets: [{
-          label: 'Spending Breakdown',
-          data,
+          label: 'Expenses',
+          data: bills.map(b => b.amount),
           backgroundColor: [
-            '#2a7de1',
-            '#4caf50',
-            '#ff9800',
-            '#9c27b0',
-            '#e91e63',
-            '#009688',
-            '#f44336',
-            '#3f51b5',
-            '#00bcd4',
-            '#ffc107'
+            '#3498db', '#1abc9c', '#f39c12', '#9b59b6',
+            '#e74c3c', '#2ecc71', '#34495e', '#fd79a8',
+            '#e67e22', '#95a5a6'
           ]
         }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: { enabled: true }
-        }
       }
     });
-  }
+  };
 
-  // Advice generation
-  function generateAdvice(remaining, bills, income) {
-    let advice = '';
-
-    if (remaining < 0) {
-      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider reducing non-essential expenses or increasing income.</p>`;
-    } else if (remaining < income * 0.1) {
-      advice += `<p>⚠️ You have limited savings potential. Look for ways to trim expenses and save more.</p>`;
-    } else {
-      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider saving or investing this amount monthly.</p>`;
-    }
-
-    const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
-    const categoryTotals = {};
-    bills.forEach(b => {
-      // Extract first word or full string as category (you can customize)
-      const cat = b.name.split(' ')[0];
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + b.amount;
-    });
-
-    for (const [cat, amt] of Object.entries(categoryTotals)) {
-      if (amt > totalExpenses * 0.4) {
-        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for
+  exportBtn.onclick = () => {
+    const element = document.getElementById('results');
+    html2pdf().from(element).save('budget_summary.pdf');
+  };
+});
