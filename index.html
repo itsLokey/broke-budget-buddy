@@ -2,58 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Broke Budget Buddy - Smart budgeting with personal advice." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
 </head>
 <body>
+  <h1>Broke Budget Buddy</h1>
   <div class="container">
-    <h1>💸 Broke Budget Buddy</h1>
-    <p>Your smart, motivational budget coach.</p>
+    <label for="income">Your Monthly Income ($):</label>
+    <input type="number" id="income" placeholder="Enter your income" />
 
-    <label>Email (optional for updates): <input type="email" id="emailCapture" /></label>
-    <label>Monthly Income (You): <input type="number" id="income" /></label>
-    <label>Monthly Income (Partner, optional): <input type="number" id="partnerIncome" /></label>
+    <button id="addBillBtn">Add Bill</button>
+    <form id="billFields">
+      <!-- Dynamic bill fields will go here -->
+    </form>
 
-    <div id="billsContainer">
-      <p>Add Your Monthly Bills:</p>
-      <button onclick="addBillField()">+ Add Bill</button>
-    </div>
+    <button id="calculateBtn">Calculate Budget</button>
 
-    <label><input type="checkbox" id="emergencyMode" /> Emergency Mode</label>
-    <button onclick="calculateBudget()">Get Budget</button>
-
-    <div id="output"></div>
-    <div id="advice"></div>
-
-    <button onclick="saveAsPDF()">Download as PDF</button>
-    <label class="switch">Dark Mode
-      <input type="checkbox" id="darkToggle">
-      <span class="slider round"></span>
-    </label>
-
-    <footer><p>Built by Ben Becker</p></footer>
+    <div id="results"></div>
   </div>
 
-  <template id="bill-template">
-    <div class="bill-entry">
-      <select class="bill-label">
-        <option value="Rent">Rent</option>
-        <option value="Groceries">Groceries</option>
-        <option value="Utilities">Utilities</option>
-        <option value="Phone">Phone</option>
-        <option value="Internet">Internet</option>
-        <option value="Transportation">Transportation</option>
-        <option value="Insurance">Insurance</option>
-        <option value="Childcare">Childcare</option>
-        <option value="Debt Payments">Debt Payments</option>
-        <option value="Subscriptions">Subscriptions</option>
-        <option value="Other">Other</option>
-      </select>
-      <input type="number" placeholder="Amount" class="bill-amount" />
-    </div>
-  </template>
+  <!-- ✅ Load JS after DOM is loaded -->
+  <script src="script.js"></script>
 </body>
 </html>
