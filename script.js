@@ -1,97 +1,101 @@
-let billCount = 0; // 👈 Move this to the top
+let billCount = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("budgetForm");
-  const summary = document.getElementById("summary");
-  const advice = document.getElementById("advice");
-
-  // Add initial bill input
+  // Add the first bill field on load
   addBillField();
 
+  const form = document.getElementById("budgetForm");
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const income = parseFloat(document.getElementById("income").value) || 0;
-    const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
-    const totalIncome = income + partnerIncome;
-
-    const bills = [];
-    let totalExpenses = 0;
-
-    for (let i = 0; i < billCount; i++) {
-      const nameInput = document.getElementById(`billName${i}`);
-      const valueInput = document.getElementById(`billValue${i}`);
-      const tagInput = document.getElementById(`billTag${i}`);
-      if (!nameInput || !valueInput) continue;
-
-      const name = nameInput.value || `Bill ${i + 1}`;
-      const value = parseFloat(valueInput.value) || 0;
-      const tag = tagInput.value || 'Uncategorized';
-      bills.push({ name, value, tag });
-      totalExpenses += value;
-    }
-
-    const balance = totalIncome - totalExpenses;
-
-    summary.innerHTML = `
-      <h3>📋 Budget Summary</h3>
-      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
-      <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
-      <p><strong>Balance:</strong> <span style="color:${balance >= 0 ? 'green' : 'red'}">$${balance.toFixed(2)}</span></p>
-    `;
-
-    advice.innerHTML = `<h3>💡 Smart Advice</h3><p>${generateAdvice(totalIncome, totalExpenses, bills, balance)}</p>`;
+    calculateBudget();
   });
 });
 
 function addBillField() {
-  const container = document.getElementById("billFields");
-  const id = billCount;
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <label>Bill Name: <input type="text" id="billName${id}" placeholder="e.g. Rent" /></label>
-    <label>Amount: <input type="number" id="billValue${id}" /></label>
-    <label>Tag: <input type="text" id="billTag${id}" placeholder="e.g. Housing, Utilities" /></label>
-    <hr />
+  const billFields = document.getElementById("billFields");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "bill-wrapper";
+  wrapper.innerHTML = `
+    <label for="billName${billCount}">Bill Name:</label>
+    <input type="text" id="billName${billCount}" placeholder="e.g., Rent" />
+
+    <label for="billAmount${billCount}">Bill Amount ($):</label>
+    <input type="number" id="billAmount${billCount}" />
+    <hr>
   `;
-  container.appendChild(div);
+
+  billFields.appendChild(wrapper);
   billCount++;
 }
 
-function exportPDF() {
-  const content = document.querySelector(".container").cloneNode(true);
-  const opt = {
-    margin: 0.5,
-    filename: 'Broke_Budget_Buddy_Report.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(content).save();
+function calculateBudget() {
+  const income = parseFloat(document.getElementById("income").value) || 0;
+  const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
+  const totalIncome = income + partnerIncome;
+
+  let totalBills = 0;
+  let billDetails = [];
+
+  for (let i = 0; i < billCount; i++) {
+    const nameEl = document.getElementById(`billName${i}`);
+    const amountEl = document.getElementById(`billAmount${i}`);
+    if (!nameEl || !amountEl) continue;
+
+    const name = nameEl.value || `Bill #${i + 1}`;
+    const amount = parseFloat(amountEl.value) || 0;
+    billDetails.push({ name, amount });
+    totalBills += amount;
+  }
+
+  const leftOver = totalIncome - totalBills;
+  const summaryBox = document.getElementById("summary");
+  summaryBox.innerHTML = `
+    <h2>📊 Budget Summary</h2>
+    <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
+    <p><strong>Total Bills:</strong> $${totalBills.toFixed(2)}</p>
+    <p><strong>Remaining:</strong> $${leftOver.toFixed(2)}</p>
+    <hr>
+    <h3>Breakdown:</h3>
+    <ul>
+      ${billDetails.map(bill => `<li>${bill.name}: $${bill.amount.toFixed(2)}</li>`).join("")}
+    </ul>
+  `;
+
+  generateAdvice(leftOver, totalIncome, billDetails);
 }
 
-function generateAdvice(income, expenses, bills, balance) {
-  if (income <= 0) return "🚨 You have no income reported. Consider emergency assistance or temporary jobs.";
-  if (expenses === 0) return "✅ Great! No expenses listed. Double-check if that’s accurate.";
-  if (balance < 0) return "❗ You're spending more than you earn. Cut unnecessary bills, seek side gigs, or reduce subscriptions.";
+function generateAdvice(remaining, income, bills) {
+  const adviceBox = document.getElementById("advice");
 
-  const rent = bills.find(b => b.tag.toLowerCase().includes("rent"));
-  const subscriptions = bills.filter(b => b.name.toLowerCase().includes("subscription"));
+  let advice = "";
+  const percent = (remaining / income) * 100;
 
-  let suggestions = [];
-
-  if (rent && rent.value > income * 0.4) {
-    suggestions.push("🏠 Rent is over 40% of your income. Consider downsizing or shared living.");
-  }
-
-  if (subscriptions.length > 2) {
-    suggestions.push("📺 You have multiple subscriptions. Cancel unused ones to save.");
-  }
-
-  if (balance > income * 0.3) {
-    suggestions.push("📈 You have good savings potential. Consider investing or building an emergency fund.");
+  if (remaining < 0) {
+    advice += "<p>⚠️ You’re spending more than you earn. Consider reducing non-essential expenses or finding ways to boost income.</p>";
+  } else if (percent < 10) {
+    advice += "<p>⚠️ You have very little left over. Consider meal planning, reviewing subscriptions, or negotiating bill reductions.</p>";
+  } else if (percent < 30) {
+    advice += "<p>✅ You're doing okay, but there’s room to improve. Try allocating a fixed percent to savings.</p>";
   } else {
-    suggestions.push("💵 Try to save at least 10-20% of your income monthly.");
+    advice += "<p>💰 Great job! Consider putting extra income into emergency savings, investments, or debt repayment.</p>";
   }
 
-  return suggestions.join(" ");
+  // Add suggestions based on common bills
+  const hasHighRent = bills.find(b => b.name.toLowerCase().includes("rent") && b.amount > income * 0.4);
+  const hasSubscription = bills.find(b => b.name.toLowerCase().includes("netflix") || b.name.toLowerCase().includes("stream"));
+
+  if (hasHighRent) {
+    advice += "<p>🏠 Your rent is high compared to your income. Explore shared housing, subsidies, or relocation options.</p>";
+  }
+  if (hasSubscription) {
+    advice += "<p>📺 Consider trimming streaming services or rotating them month-to-month to save money.</p>";
+  }
+
+  adviceBox.innerHTML = `<h2>💡 Smart Advice</h2>${advice}`;
+}
+
+function exportPDF() {
+  const content = document.querySelector(".container");
+  html2pdf().from(content).save("budget-summary.pdf");
 }
