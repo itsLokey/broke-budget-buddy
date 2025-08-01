@@ -1,66 +1,49 @@
-document.getElementById("darkToggle").addEventListener("change", () => {
-  document.body.classList.toggle("dark-mode");
-});
+document.addEventListener("DOMContentLoaded", function () {
+  const billFields = document.getElementById("billFields");
+  const addBillBtn = document.getElementById("addBillBtn");
+  const calculateBtn = document.getElementById("calculateBtn");
+  const resultsDiv = document.getElementById("results");
 
-function addBillField() {
-  const template = document.getElementById("bill-template");
-  const clone = template.content.cloneNode(true);
-  document.getElementById("billsContainer").appendChild(clone);
-}
+  function addBillField() {
+    billFields.insertAdjacentHTML("beforeend", `
+      <div class="bill">
+        <input type="text" placeholder="Bill name" class="bill-name" />
+        <input type="number" placeholder="Amount ($)" class="bill-amount" />
+      </div>
+    `);
+  }
 
-function calculateBudget() {
-  const income = parseFloat(document.getElementById("income").value) || 0;
-  const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
-  const totalIncome = income + partnerIncome;
+  function calculateBudget() {
+    const income = parseFloat(document.getElementById("income").value);
+    if (isNaN(income) || income <= 0) {
+      resultsDiv.innerHTML = "<p class='error'>Please enter a valid income.</p>";
+      return;
+    }
 
-  const emergency = document.getElementById("emergencyMode").checked;
-  const bills = Array.from(document.querySelectorAll(".bill-entry"));
-  
-  let totalExpenses = 0;
-  let breakdown = [];
+    const bills = document.querySelectorAll(".bill");
+    let totalBills = 0;
 
-  bills.forEach(entry => {
-    const label = entry.querySelector("select").value;
-    const amount = parseFloat(entry.querySelector("input").value) || 0;
-    totalExpenses += amount;
-    breakdown.push({ label, amount });
-  });
+    bills.forEach(bill => {
+      const amount = parseFloat(bill.querySelector(".bill-amount").value) || 0;
+      totalBills += amount;
+    });
 
-  const remaining = totalIncome - totalExpenses;
-  let output = `<h3>📊 Budget Summary</h3>`;
-  output += `<p>Total Household Income: $${totalIncome.toFixed(2)}</p>`;
-  output += `<p>Total Expenses: $${totalExpenses.toFixed(2)}</p>`;
-  output += `<p>Remaining: $${remaining.toFixed(2)}</p><hr>`;
-  output += `<ul>`;
-  breakdown.forEach(b => {
-    output += `<li>${b.label}: $${b.amount.toFixed(2)}</li>`;
-  });
-  output += `</ul>`;
+    const remaining = income - totalBills;
 
-  document.getElementById("output").innerHTML = output;
+    resultsDiv.innerHTML = `
+      <p>Total Bills: $${totalBills.toFixed(2)}</p>
+      <p>Remaining Balance: $${remaining.toFixed(2)}</p>
+    `;
 
-  // Dynamic smart advice
-  let advice = `<h3>🧠 Smart Advice</h3>`;
-  if (emergency) {
-    advice += `<p><strong>Emergency Mode:</strong> Focus only on rent, food, utilities, and essential transport. Cut subscriptions and luxury expenses immediately.</p>`;
-  } else {
-    if (remaining > 500) {
-      advice += `<p>You're in a strong financial position. Consider putting $${(remaining * 0.3).toFixed(2)} into savings or investments monthly.</p>`;
-    } else if (remaining > 0) {
-      advice += `<p>Your budget is balanced. Look for minor areas to reduce spending and improve your emergency fund.</p>`;
+    if (remaining < 0) {
+      resultsDiv.innerHTML += "<p class='warning'>You're over budget!</p>";
+    } else if (remaining < income * 0.2) {
+      resultsDiv.innerHTML += "<p class='caution'>Warning: You have less than 20% of your income left.</p>";
     } else {
-      advice += `<p>⚠️ You're spending more than you earn. Review bills like subscriptions or optional insurance. Contact providers for hardship relief programs.</p>`;
+      resultsDiv.innerHTML += "<p class='good'>You're on track. Keep it up!</p>";
     }
   }
 
-  if (totalExpenses > totalIncome * 0.7) {
-    advice += `<p>💡 Consider reducing fixed costs (like moving to a cheaper rental) or increasing income (side jobs, selling unused items).</p>`;
-  }
-
-  document.getElementById("advice").innerHTML = advice;
-}
-
-// PDF generation using browser print
-function saveAsPDF() {
-  window.print();
-}
+  addBillBtn.onclick = addBillField;
+  calculateBtn.onclick = calculateBudget;
+});
