@@ -1,130 +1,86 @@
-/* Reset + Base */
-* {
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+  background: #f3f3f3;
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f7f9;
-  color: #333;
-  line-height: 1.6;
-  padding: 20px;
-}
-
-/* Layout */
 .container {
-  max-width: 700px;
-  margin: auto;
-  background: #fff;
+  max-width: 800px;
+  margin: 30px auto;
+  background: white;
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* Headings */
 h1, h2 {
-  color: #222;
-  margin-bottom: 20px;
   text-align: center;
+  color: #2c3e50;
 }
 
-/* Forms */
-form .input-group {
-  margin-bottom: 20px;
-}
-
-label {
+form label {
   display: block;
+  margin: 15px 0 5px;
   font-weight: bold;
-  margin-bottom: 6px;
 }
 
-input[type="number"],
-select {
+input[type="number"], select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 8px;
   margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  padding: 10px 15px;
+  margin-top: 10px;
+  border: none;
+  background: #3498db;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #2980b9;
 }
 
 .bill-field {
   display: flex;
   gap: 10px;
-  align-items: center;
   margin-bottom: 10px;
 }
 
-.remove-btn {
-  padding: 6px 10px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.bill-field select,
+.bill-field input {
+  flex: 1;
 }
 
-.remove-btn:hover {
+.remove-bill {
+  background: #e74c3c;
+  color: white;
+  padding: 0 10px;
+}
+
+.remove-bill:hover {
   background: #c0392b;
 }
 
-/* Buttons */
-.primary-btn,
-.secondary-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.primary-btn {
-  background-color: #3498db;
-  color: white;
-  margin-top: 10px;
-}
-
-.primary-btn:hover {
-  background-color: #2980b9;
-}
-
-.secondary-btn {
-  background-color: #bdc3c7;
-  color: #333;
-}
-
-.secondary-btn:hover {
-  background-color: #95a5a6;
-}
-
-/* Sections */
-section {
-  margin-top: 30px;
-}
-
-canvas {
-  display: block;
-  margin: auto;
-  max-width: 100%;
-}
-
-/* Export styles */
-.export-area {
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
-
-/* Utilities */
 .hidden {
   display: none;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .bill-field {
-    flex-direction: column;
-  }
+#summary, #advice, #breakdown-list {
+  margin-top: 20px;
+}
+
+#export {
+  background: #2ecc71;
+}
+
+#export:hover {
+  background: #27ae60;
 }
