@@ -1,0 +1,14 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #333;
+  padding: 20px;
+}
+body.dark-mode {
+  background: #1c1c1c;
+  color: #eee;
+}
+.container {
+  max-width: 600px;
+  margin: auto;
+}
