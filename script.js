@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartCanvas = document.getElementById('budgetChart');
   const billsContainer = document.getElementById('bills-container');
   const addBillBtn = document.getElementById('add-bill-btn');
+  const submitBtn = document.getElementById('submit-btn');
 
   let budgetChart = null;
 
@@ -76,12 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listeners
     select.addEventListener('change', () => {
+      // Update addedBillIds and refresh other selects
       if (selectedId) addedBillIds.delete(selectedId);
       selectedId = select.value;
 
       if (selectedId) addedBillIds.add(selectedId);
       refreshAllBillSelects();
-
+      // Reset amount if empty
       if (!input.value) input.value = getDefaultAmount(selectedId);
     });
 
@@ -116,7 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
           option.disabled = false;
           return;
         }
-        const isSelectedElsewhere = [...selects].some(otherSelect =>
+        // Disable option if selected in other dropdowns and not current select's value
+        const isSelectedElsewhere = [...selects].some(otherSelect => 
           otherSelect !== select && otherSelect.value === option.value
         );
         option.disabled = isSelectedElsewhere && option.value !== currentValue;
@@ -133,7 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function addBillEntry(selectedId = '', amountVal = '') {
+    // If no bills left to add, do nothing
     if (addedBillIds.size >= predefinedBills.length && !selectedId) return;
+
+    // If selectedId given, add to addedBillIds
     if (selectedId) addedBillIds.add(selectedId);
 
     const billEntry = createBillEntry(selectedId, amountVal);
@@ -145,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   budgetForm.onsubmit = (e) => {
     e.preventDefault();
 
+    // Get income values
     const income = parseFloat(document.getElementById('income').value) || 0;
     const partnerIncome = parseFloat(document.getElementById('partnerIncome').value) || 0;
     const totalIncome = income + partnerIncome;
@@ -154,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Gather bills
     const bills = [];
     let valid = true;
 
@@ -182,45 +190,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!valid) return;
 
+    // Calculate totals
     const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
     const remaining = totalIncome - totalExpenses;
 
+    // Show result titles and export button
     summaryTitle.classList.remove('hidden');
     chartTitle.classList.remove('hidden');
     adviceTitle.classList.remove('hidden');
     exportBtn.classList.remove('hidden');
     progressSection.classList.remove('hidden');
 
+    // Show results section
     resultsSection.classList.remove('hidden');
 
+    // Display summary
     summaryDiv.innerHTML = `
       <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
       <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
       <p><strong>Remaining:</strong> $${remaining.toFixed(2)}</p>
     `;
 
+    // Update progress bar
     updateProgressBar(totalIncome, totalExpenses);
 
+    // Draw chart
     generateChart(bills);
 
+    // Generate advice
     adviceDiv.innerHTML = generateAdvice(remaining, bills, totalIncome);
   };
 
-  // Export PDF
+  // Export PDF - modernized and cleaned
   exportBtn.onclick = () => {
+    // Add export styling class to results container
+    resultsSection.classList.add('exporting-pdf');
+
+    // Hide UI buttons during export
     exportBtn.style.display = 'none';
-    html2pdf().set({
-      margin: 0.5,
-      filename: 'BrokeBudgetBuddy_Summary.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    }).from(resultsSection).save()
+    addBillBtn.style.display = 'none';
+    submitBtn.style.display = 'none';
+
+    // Give a moment for CSS to apply before exporting
+    setTimeout(() => {
+      html2pdf().set({
+        margin: 0.7,
+        filename: 'BrokeBudgetBuddy_Summary.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 3, logging: false, dpi: 300, letterRendering: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      }).from(resultsSection).save()
       .finally(() => {
+        // Restore UI and remove export styling
+        resultsSection.classList.remove('exporting-pdf');
         exportBtn.style.display = 'inline-block';
+        addBillBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'inline-block';
       });
+    }, 100);
   };
 
+  // Progress bar logic
   function updateProgressBar(income, expenses) {
     let percentage = (expenses / income) * 100;
     percentage = Math.min(percentage, 150);
@@ -238,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Chart drawing logic
   function generateChart(bills) {
     const labels = bills.map(b => b.name);
     const data = bills.map(b => b.amount);
@@ -271,30 +302,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Smart advice generation
   function generateAdvice(remaining, bills, income) {
     let advice = '';
 
     if (remaining < 0) {
-      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider reducing non-essential expenses or increasing your income.</p>`;
+      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}.</strong> Consider reducing some expenses.</p>`;
     } else if (remaining < income * 0.1) {
-      advice += `<p>⚠️ You have limited savings potential. Look for ways to trim expenses and save more.</p>`;
+      advice += `<p>🤔 You have a small buffer of $${remaining.toFixed(2)}. Try to save more if possible.</p>`;
     } else {
-      advice += `<p>✅ You have a healthy buffer of $${remaining.toFixed(2)}. Consider saving or investing this amount monthly.</p>`;
+      advice += `<p>🎉 Great! You have $${remaining.toFixed(2)} left after expenses. Keep up the good budgeting!</p>`;
     }
 
-    const totalExpenses = bills.reduce((acc, b) => acc + b.amount, 0);
-    const categoryTotals = {};
-    bills.forEach(b => {
-      categoryTotals[b.category] = (categoryTotals[b.category] || 0) + b.amount;
-    });
-
-    for (const [cat, amt] of Object.entries(categoryTotals)) {
-      if (amt > totalExpenses * 0.4) {
-        advice += `<p>👉 Notice that <strong>${cat}</strong> accounts for over 40% of your spending. You might want to review this expense.</p>`;
-      }
+    // Add advice based on specific bills
+    const highRent = bills.find(b => b.id === 'rent' && b.amount > income * 0.4);
+    if (highRent) {
+      advice += `<p>🏠 Your rent is over 40% of your income. This might be high — consider cheaper housing or roommates.</p>`;
     }
 
-    advice += `<p><em>Disclaimer: This advice is generated to help you plan better but does not replace professional financial consulting.</em></p>`;
+    const highDebt = bills.find(b => b.id === 'debt' && b.amount > income * 0.2);
+    if (highDebt) {
+      advice += `<p>💳 High debt payments can hurt your financial health. Look into refinancing or debt management.</p>`;
+    }
+
     return advice;
   }
 });
