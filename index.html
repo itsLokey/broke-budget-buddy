@@ -2,56 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Broke Budget Buddy</h1>
-    <p class="subtitle">Your smarter, friendlier budget planner</p>
 
     <form id="budget-form">
-      <label for="income">Your Monthly Income ($):</label>
-      <input type="number" id="income" placeholder="Enter your income" required />
-
-      <label for="partnerIncome">Partner's Monthly Income (optional):</label>
-      <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
+      <div class="income-inputs">
+        <label>Your Income: <input type="number" id="user-income" required /></label>
+        <label>Partner Income (optional): <input type="number" id="partner-income" /></label>
+      </div>
 
       <div id="bills-container">
-        <!-- Bill entries dynamically added here -->
+        <label>Add a Bill:</label>
+        <div class="bill-group">
+          <select class="bill-name">
+            <option value="Rent">Rent</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Phone">Phone</option>
+            <option value="Internet">Internet</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Debt">Debt Repayment</option>
+            <option value="Subscriptions">Subscriptions</option>
+            <option value="Childcare">Childcare</option>
+          </select>
+          <input type="number" class="bill-amount" placeholder="Amount" required />
+          <button type="button" class="remove-bill">X</button>
+        </div>
       </div>
 
-      <button type="button" id="add-bill-btn">Add Another Bill</button>
-      <button type="submit" id="submit-btn">Get Budget</button>
+      <button type="button" id="add-bill">Add Another Bill</button>
+      <button type="submit">Get Budget</button>
     </form>
 
-    <section id="results" class="hidden">
-      <h2 id="summary-title" class="hidden">Budget Summary</h2>
+    <div id="results" style="display:none;">
+      <h2>Budget Summary</h2>
       <div id="summary"></div>
 
-      <div id="progress-section" class="hidden">
-        <label for="progress-bar">Monthly Budget Usage:</label>
-        <div id="progress-bar-wrapper">
-          <div id="progress-bar"></div>
-        </div>
-        <p id="progress-text"></p>
-      </div>
+      <h2>Monthly Budget Usage</h2>
+      <canvas id="budget-chart"></canvas>
 
-      <h2 id="chart-title" class="hidden">Spending Breakdown</h2>
-      <canvas id="budgetChart" width="400" height="400"></canvas>
+      <h2>Spending Breakdown</h2>
+      <ul id="spending-breakdown"></ul>
 
-      <h2 id="advice-title" class="hidden">Smart Financial Advice</h2>
-      <div id="advice"></div>
+      <h2>Smart Financial Advice</h2>
+      <div id="smart-advice"></div>
 
-      <button id="export-pdf-btn" class="hidden">Export as PDF</button>
-    </section>
+      <button id="export-pdf">Export as PDF</button>
+    </div>
   </div>
 
-  <footer>Built by Ben Becker</footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
