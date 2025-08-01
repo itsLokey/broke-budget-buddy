@@ -13,43 +13,29 @@
 
     <form id="budget-form">
       <label for="income">Your Monthly Income ($):</label>
-      <input type="number" id="income" placeholder="Enter your income" required />
+      <input type="number" id="income" placeholder="Enter your income" min="0" required />
 
       <label for="partnerIncome">Partner's Monthly Income (optional):</label>
-      <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
+      <input type="number" id="partnerIncome" placeholder="Enter partner's income" min="0" />
 
-      <fieldset>
-        <legend>Add Your Bills</legend>
+      <fieldset id="bills-fieldset">
+        <legend>Select your bills and enter amounts</legend>
 
-        <div class="bill-entry">
-          <select id="bill-type">
-            <option value="">-- Select a Bill --</option>
-            <option value="Rent / Mortgage">Rent / Mortgage</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Internet / Cable">Internet / Cable</option>
-            <option value="Phone">Phone</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Transport">Transport</option>
-            <option value="Insurance">Insurance</option>
-            <option value="Subscriptions">Subscriptions</option>
-            <option value="Debt Payments">Debt Payments</option>
-            <option value="Other">Other</option>
-          </select>
-          <input type="number" id="bill-amount" placeholder="Amount" />
-          <button type="button" id="add-bill">Add Bill</button>
+        <div id="bills-container">
+          <!-- Dynamic bill entries will go here -->
         </div>
 
-        <ul id="bill-list"></ul>
+        <button type="button" id="add-bill-btn">+ Add Bill</button>
       </fieldset>
 
       <button type="submit" id="submit-btn">Get Budget</button>
     </form>
 
     <section id="results" class="hidden">
-      <h2>Budget Summary</h2>
+      <h2 id="summary-title" class="hidden">Budget Summary</h2>
       <div id="summary"></div>
 
-      <div id="progress-section">
+      <div id="progress-section" class="hidden">
         <label for="progress-bar">Monthly Budget Usage:</label>
         <div id="progress-bar-wrapper">
           <div id="progress-bar"></div>
@@ -57,13 +43,13 @@
         <p id="progress-text"></p>
       </div>
 
-      <h2>Spending Breakdown</h2>
+      <h2 id="chart-title" class="hidden">Spending Breakdown</h2>
       <canvas id="budgetChart" width="400" height="400"></canvas>
 
-      <h2>Smart Financial Advice</h2>
+      <h2 id="advice-title" class="hidden">Smart Financial Advice</h2>
       <div id="advice"></div>
 
-      <button id="export-pdf-btn">Export as PDF</button>
+      <button id="export-pdf-btn" class="hidden">Export as PDF</button>
     </section>
   </div>
 
