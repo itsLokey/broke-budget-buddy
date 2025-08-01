@@ -19,67 +19,25 @@
       <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
 
       <fieldset>
-        <legend>Select your bills</legend>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-rent" data-default="1200" />
-          <label for="bill-rent">Rent / Mortgage</label>
-          <input type="number" class="bill-amount" id="amount-rent" placeholder="Amount" disabled />
+        <legend>Add your bills</legend>
+        <div id="bill-entry">
+          <select id="bill-select">
+            <option value="" disabled selected>-- Select a bill --</option>
+            <option value="Rent / Mortgage" data-default="1200">Rent / Mortgage</option>
+            <option value="Utilities (Electricity, Water)" data-default="150">Utilities (Electricity, Water)</option>
+            <option value="Internet / Cable" data-default="60">Internet / Cable</option>
+            <option value="Phone" data-default="50">Phone</option>
+            <option value="Groceries" data-default="400">Groceries</option>
+            <option value="Transport / Gas / Public Transit" data-default="150">Transport / Gas / Public Transit</option>
+            <option value="Insurance (Health, Car, Home)" data-default="200">Insurance (Health, Car, Home)</option>
+            <option value="Subscriptions (Netflix, Spotify, etc.)" data-default="50">Subscriptions</option>
+            <option value="Debt Payments (Loans, Credit Cards)" data-default="300">Debt Payments</option>
+            <option value="Other" data-default="0">Other</option>
+          </select>
+          <input type="number" id="bill-amount" placeholder="Amount" min="0" />
+          <button type="button" id="add-bill-btn">Add Bill</button>
         </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-utilities" data-default="150" />
-          <label for="bill-utilities">Utilities (Electricity, Water)</label>
-          <input type="number" class="bill-amount" id="amount-utilities" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-internet" data-default="60" />
-          <label for="bill-internet">Internet / Cable</label>
-          <input type="number" class="bill-amount" id="amount-internet" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-phone" data-default="50" />
-          <label for="bill-phone">Phone</label>
-          <input type="number" class="bill-amount" id="amount-phone" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-groceries" data-default="400" />
-          <label for="bill-groceries">Groceries</label>
-          <input type="number" class="bill-amount" id="amount-groceries" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-transport" data-default="150" />
-          <label for="bill-transport">Transport / Gas / Public Transit</label>
-          <input type="number" class="bill-amount" id="amount-transport" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-insurance" data-default="200" />
-          <label for="bill-insurance">Insurance (Health, Car, Home)</label>
-          <input type="number" class="bill-amount" id="amount-insurance" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-subscriptions" data-default="50" />
-          <label for="bill-subscriptions">Subscriptions (Netflix, Spotify, etc.)</label>
-          <input type="number" class="bill-amount" id="amount-subscriptions" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-debt" data-default="300" />
-          <label for="bill-debt">Debt Payments (Loans, Credit Cards)</label>
-          <input type="number" class="bill-amount" id="amount-debt" placeholder="Amount" disabled />
-        </div>
-
-        <div class="bill-checkbox">
-          <input type="checkbox" id="bill-other" data-default="0" />
-          <label for="bill-other">Other</label>
-          <input type="number" class="bill-amount" id="amount-other" placeholder="Amount" disabled />
-        </div>
+        <ul id="bills-list" class="bills-list"></ul>
       </fieldset>
 
       <button type="submit" id="submit-btn">Get Budget</button>
