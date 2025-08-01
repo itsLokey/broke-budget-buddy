@@ -1,57 +1,64 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Broke Budget Buddy</h1>
     <form id="budgetForm">
-      <label for="income">Monthly Income:</label>
-      <input type="number" id="income" name="income" required />
+      <div class="input-group">
+        <label for="income">Monthly Income ($)</label>
+        <input type="number" id="income" required placeholder="e.g., 2500" />
+      </div>
 
-      <label for="billSelect">Add a Bill:</label>
-      <select id="billSelect">
-        <option value="">-- Select Bill Type --</option>
-        <option value="Rent">Rent</option>
-        <option value="Utilities">Utilities</option>
-        <option value="Internet">Internet</option>
-        <option value="Phone">Phone</option>
-        <option value="Groceries">Groceries</option>
-        <option value="Insurance">Insurance</option>
-        <option value="Transport">Transport</option>
-        <option value="Other">Other</option>
-      </select>
-      <input type="number" id="billAmount" placeholder="Amount" />
-      <button type="button" id="addBill">Add Bill</button>
+      <div class="input-group">
+        <label>Bills & Expenses</label>
+        <div id="billContainer"></div>
+        <button type="button" id="addBillBtn" class="secondary-btn">+ Add Bill</button>
+      </div>
 
-      <div id="billsContainer"></div>
-
-      <button type="submit">Get Budget</button>
+      <button type="submit" class="primary-btn">Calculate</button>
     </form>
 
-    <div id="results" class="hidden">
-      <h2>Budget Summary</h2>
-      <p id="summary"></p>
+    <section id="budgetSummary" class="hidden export-area">
+      <h2>Summary</h2>
+      <p><strong>Total Bills:</strong> <span id="totalBills">$0.00</span></p>
+      <p><strong>Remaining Budget:</strong> <span id="remainingBudget">$0.00</span></p>
+    </section>
 
-      <h2>Monthly Budget Usage</h2>
-      <canvas id="budgetChart"></canvas>
+    <section id="usageSection" class="hidden export-area">
+      <h2>Spending Usage</h2>
+      <p><strong>Budget Used:</strong> <span id="usagePercent">0%</span></p>
+    </section>
 
-      <h2>Spending Breakdown</h2>
-      <ul id="breakdown"></ul>
+    <section id="breakdownSection" class="hidden export-area">
+      <h2>Breakdown</h2>
+      <canvas id="budgetChart" width="300" height="300"></canvas>
+    </section>
 
-      <h2>Smart Financial Advice</h2>
-      <div id="advice"></div>
+    <section id="adviceSection" class="hidden export-area">
+      <h2>Smart Advice</h2>
+      <div id="adviceText"></div>
+    </section>
 
-      <button id="exportPDF">Export as PDF</button>
-    </div>
+    <button id="exportBtn" class="primary-btn hidden">Export as PDF</button>
   </div>
+
+  <!-- Hidden container for PDF export -->
+  <div id="exportArea" class="hidden">
+    <h1>Broke Budget Buddy – Summary</h1>
+    <div id="budgetSummary"></div>
+    <div id="usageSection"></div>
+    <div id="breakdownSection"></div>
+    <div id="adviceSection"></div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
