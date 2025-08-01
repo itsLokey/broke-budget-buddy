@@ -1,94 +1,102 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("budgetForm");
+  const summary = document.getElementById("summary");
+  const advice = document.getElementById("advice");
   const billFields = document.getElementById("billFields");
-  const budgetForm = document.getElementById("budgetForm");
-  const resultsDiv = document.getElementById("summary");
-  const adviceDiv = document.getElementById("advice");
 
-  window.addBillField = function(name = "", amount = 0, tag = "Other") {
-    billFields.insertAdjacentHTML("beforeend", `
-      <div class="bill">
-        <input type="text" placeholder="Bill name" class="bill-name" value="${name}" />
-        <input type="number" placeholder="Amount ($)" class="bill-amount" value="${amount}" />
-        <select class="bill-tag">
-          <option value="" ${tag === "" ? "selected" : ""}>Category</option>
-          <option value="rent" ${tag === "rent" ? "selected" : ""}>Rent</option>
-          <option value="utilities" ${tag === "utilities" ? "selected" : ""}>Utilities</option>
-          <option value="groceries" ${tag === "groceries" ? "selected" : ""}>Groceries</option>
-          <option value="subscriptions" ${tag === "subscriptions" ? "selected" : ""}>Subscriptions</option>
-          <option value="transport" ${tag === "transport" ? "selected" : ""}>Transport</option>
-          <option value="debt" ${tag === "debt" ? "selected" : ""}>Debt</option>
-          <option value="other" ${tag === "other" ? "selected" : ""}>Other</option>
-        </select>
-      </div>
-    `);
-  };
+  let billCount = 0;
 
-  function generateAdvice(remaining, income) {
-    if (remaining < 0) return "You're spending more than you earn. Cut unnecessary expenses immediately or consider increasing income streams.";
-    if (remaining < income * 0.2) return "You're close to breaking even. Prioritize essentials and build an emergency fund.";
-    if (remaining >= income * 0.2 && remaining < income * 0.5) return "You're doing okay. Consider putting surplus into savings, investments, or paying down debt.";
-    return "Excellent work! Maintain this balance, consider long-term goals, and revisit your budget monthly.";
-  }
+  // Add initial bill input
+  addBillField();
 
-  budgetForm.addEventListener("submit", function(e) {
+  // Attach form submission handler
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const income = parseFloat(document.getElementById("income").value) || 0;
     const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
     const totalIncome = income + partnerIncome;
 
-    if (totalIncome <= 0) {
-      resultsDiv.innerHTML = "<p class='error'>Please enter valid income values.</p>";
-      adviceDiv.innerHTML = "";
-      return;
+    const bills = [];
+    let totalExpenses = 0;
+
+    for (let i = 0; i < billCount; i++) {
+      const nameInput = document.getElementById(`billName${i}`);
+      const valueInput = document.getElementById(`billValue${i}`);
+      const tagInput = document.getElementById(`billTag${i}`);
+      if (!nameInput || !valueInput) continue;
+
+      const name = nameInput.value || `Bill ${i + 1}`;
+      const value = parseFloat(valueInput.value) || 0;
+      const tag = tagInput.value || 'Uncategorized';
+      bills.push({ name, value, tag });
+      totalExpenses += value;
     }
 
-    const bills = document.querySelectorAll(".bill");
-    let totalBills = 0;
-    const billSummary = [];
+    const balance = totalIncome - totalExpenses;
 
-    bills.forEach(bill => {
-      const name = bill.querySelector(".bill-name").value || "Unnamed";
-      const amount = parseFloat(bill.querySelector(".bill-amount").value) || 0;
-      const tag = bill.querySelector(".bill-tag").value || "Other";
-      totalBills += amount;
-      billSummary.push({ name, amount, tag });
-    });
-
-    const remaining = totalIncome - totalBills;
-    const advice = generateAdvice(remaining, totalIncome);
-
-    let summaryHTML = `
-      <h3>Summary</h3>
-      <p>Total Income: $${totalIncome.toFixed(2)}</p>
-      <p>Total Bills: $${totalBills.toFixed(2)}</p>
-      <p>Remaining Balance: $${remaining.toFixed(2)}</p>
-      <h4>Bill Breakdown:</h4>
-      <ul>
+    summary.innerHTML = `
+      <h3>📋 Budget Summary</h3>
+      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
+      <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
+      <p><strong>Balance:</strong> <span style="color:${balance >= 0 ? 'green' : 'red'}">$${balance.toFixed(2)}</span></p>
     `;
-    billSummary.forEach(bill => {
-      summaryHTML += `<li>${bill.name} (${bill.tag}): $${bill.amount.toFixed(2)}</li>`;
-    });
-    summaryHTML += `</ul>`;
 
-    resultsDiv.innerHTML = summaryHTML;
-    adviceDiv.innerHTML = `<p class="advice">${advice}</p>`;
+    advice.innerHTML = `<h3>💡 Smart Advice</h3><p>${generateAdvice(totalIncome, totalExpenses, bills, balance)}</p>`;
   });
-
-  window.exportPDF = function() {
-    const element = document.getElementById("summary");
-    if (!element) return;
-    const opt = {
-      margin:       0.5,
-      filename:     'broke-budget-summary.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
-  };
-
-  // Add two default bills
-  addBillField("Rent", 1000, "rent");
-  addBillField("Groceries", 300, "groceries");
 });
+
+// Add a new bill input
+function addBillField() {
+  const container = document.getElementById("billFields");
+  const id = container.children.length;
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <label>Bill Name: <input type="text" id="billName${id}" placeholder="e.g. Rent" /></label>
+    <label>Amount: <input type="number" id="billValue${id}" /></label>
+    <label>Tag: <input type="text" id="billTag${id}" placeholder="e.g. Housing, Utilities" /></label>
+    <hr />
+  `;
+  container.appendChild(div);
+  billCount++;
+}
+
+// Create professional PDF
+function exportPDF() {
+  const content = document.querySelector(".container").cloneNode(true);
+  const opt = {
+    margin: 0.5,
+    filename: 'Broke_Budget_Buddy_Report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(content).save();
+}
+
+// Dynamic advice generator
+function generateAdvice(income, expenses, bills, balance) {
+  if (income <= 0) return "🚨 You have no income reported. Consider emergency assistance or temporary jobs.";
+  if (expenses === 0) return "✅ Great! No expenses listed. Double-check if that’s accurate.";
+  if (balance < 0) return "❗ You're spending more than you earn. Cut unnecessary bills, seek side gigs, or reduce subscriptions.";
+
+  const rent = bills.find(b => b.tag.toLowerCase().includes("rent"));
+  const subscriptions = bills.filter(b => b.name.toLowerCase().includes("subscription"));
+
+  let suggestions = [];
+
+  if (rent && rent.value > income * 0.4) {
+    suggestions.push("🏠 Rent is over 40% of your income. Consider downsizing or shared living.");
+  }
+
+  if (subscriptions.length > 2) {
+    suggestions.push("📺 You have multiple subscriptions. Cancel unused ones to save.");
+  }
+
+  if (balance > income * 0.3) {
+    suggestions.push("📈 You have good savings potential. Consider investing or building an emergency fund.");
+  } else {
+    suggestions.push("💵 Try to save at least 10-20% of your income monthly.");
+  }
+
+  return suggestions.join(" ");
+}
