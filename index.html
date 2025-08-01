@@ -13,20 +13,14 @@
 
     <form id="budget-form">
       <label for="income">Your Monthly Income ($):</label>
-      <input type="number" id="income" placeholder="Enter your income" min="0" required />
+      <input type="number" id="income" placeholder="Enter your income" required />
 
       <label for="partnerIncome">Partner's Monthly Income (optional):</label>
-      <input type="number" id="partnerIncome" placeholder="Enter partner's income" min="0" />
+      <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
 
-      <fieldset id="bills-fieldset">
-        <legend>Select your bills and enter amounts</legend>
+      <div id="bills-container"></div>
 
-        <div id="bills-container">
-          <!-- Dynamic bill entries will go here -->
-        </div>
-
-        <button type="button" id="add-bill-btn">+ Add Bill</button>
-      </fieldset>
+      <button type="button" id="add-bill-btn" class="add-bill-btn">+ Add Bill</button>
 
       <button type="submit" id="submit-btn">Get Budget</button>
     </form>
