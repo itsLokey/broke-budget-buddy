@@ -1,73 +1,93 @@
 body {
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  background: #f4f4f4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f8;
   color: #333;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
   max-width: 800px;
-  margin: auto;
+  margin: 30px auto;
   background: #fff;
-  padding: 2rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 25px;
   border-radius: 12px;
-  margin-top: 2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
+h1 {
   text-align: center;
-  margin-bottom: 1rem;
+  color: #2a3f54;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+form > div {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+button {
+  background-color: #2a3f54;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #1f2f40;
+}
+
+button.remove-bill {
+  background-color: #d9534f;
+  color: white;
+  margin-top: 5px;
+  font-size: 12px;
+  padding: 6px;
+  width: auto;
 }
 
 .bill-group {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 10px;
   align-items: center;
+  margin-bottom: 10px;
 }
 
-input[type="number"], select {
-  padding: 0.5rem;
-  font-size: 1rem;
-  flex: 1;
+.hidden {
+  display: none;
 }
 
-button {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-.remove-bill {
-  background: #dc3545;
-}
-
-#results {
-  margin-top: 2rem;
-}
-
-#summary, #smart-advice {
-  background: #e9ecef;
-  padding: 1rem;
-  border-radius: 8px;
+#chartContainer {
+  margin: 30px 0;
 }
 
 canvas {
-  max-width: 100%;
+  width: 100% !important;
+  height: 400px !important;
+}
+
+.advice {
+  background: #eafaf1;
+  border-left: 6px solid #28a745;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 8px;
+  font-size: 15px;
 }
