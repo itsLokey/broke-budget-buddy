@@ -1,42 +1,66 @@
+document.getElementById("darkToggle").addEventListener("change", () => {
+  document.body.classList.toggle("dark-mode");
+});
+
 function addBillField() {
-  var billContainer = document.getElementById("displayedBills");
-  var newBillField = `
-    <div>
-      <label>Bill Name:</label>
-      <input type="text" class="billName">
-      <label>Amount:</label>
-      <input type="number" class="billAmount"><br>
-    </div>`;
-  billContainer.insertAdjacentHTML("beforeend", newBillField);
+  const template = document.getElementById("bill-template");
+  const clone = template.content.cloneNode(true);
+  document.getElementById("billsContainer").appendChild(clone);
 }
 
 function calculateBudget() {
-  var income = parseFloat(document.getElementById("income").value) || 0;
+  const income = parseFloat(document.getElementById("income").value) || 0;
+  const partnerIncome = parseFloat(document.getElementById("partnerIncome").value) || 0;
+  const totalIncome = income + partnerIncome;
 
-  var billInputs = document.getElementsByClassName("billAmount");
-  var bills = [];
-  for (var i = 0; i < billInputs.length; i++) {
-    var billAmount = parseFloat(billInputs[i].value) || 0;
-    bills.push(billAmount);
-  }
+  const emergency = document.getElementById("emergencyMode").checked;
+  const bills = Array.from(document.querySelectorAll(".bill-entry"));
+  
+  let totalExpenses = 0;
+  let breakdown = [];
 
-  var totalBills = bills.reduce((a, b) => a + b, 0);
-  var remainingBudget = income - totalBills;
+  bills.forEach(entry => {
+    const label = entry.querySelector("select").value;
+    const amount = parseFloat(entry.querySelector("input").value) || 0;
+    totalExpenses += amount;
+    breakdown.push({ label, amount });
+  });
 
-  document.getElementById("output").innerHTML = "Remaining Budget: $" + remainingBudget.toFixed(2);
+  const remaining = totalIncome - totalExpenses;
+  let output = `<h3>📊 Budget Summary</h3>`;
+  output += `<p>Total Household Income: $${totalIncome.toFixed(2)}</p>`;
+  output += `<p>Total Expenses: $${totalExpenses.toFixed(2)}</p>`;
+  output += `<p>Remaining: $${remaining.toFixed(2)}</p><hr>`;
+  output += `<ul>`;
+  breakdown.forEach(b => {
+    output += `<li>${b.label}: $${b.amount.toFixed(2)}</li>`;
+  });
+  output += `</ul>`;
 
-  if (remainingBudget < 0) {
-    document.getElementById("billAdvice").innerHTML = "You have overspent on bills this month! Consider cutting unnecessary expenses or increasing your income.";
-  } else if (remainingBudget < 500) {
-    document.getElementById("billAdvice").innerHTML = "Your remaining budget is low for the month. You might need to cut back on some discretionary spending.";
+  document.getElementById("output").innerHTML = output;
+
+  // Dynamic smart advice
+  let advice = `<h3>🧠 Smart Advice</h3>`;
+  if (emergency) {
+    advice += `<p><strong>Emergency Mode:</strong> Focus only on rent, food, utilities, and essential transport. Cut subscriptions and luxury expenses immediately.</p>`;
   } else {
-    document.getElementById("billAdvice").innerHTML = "Great job staying within your budget! Keep up the good work.";
+    if (remaining > 500) {
+      advice += `<p>You're in a strong financial position. Consider putting $${(remaining * 0.3).toFixed(2)} into savings or investments monthly.</p>`;
+    } else if (remaining > 0) {
+      advice += `<p>Your budget is balanced. Look for minor areas to reduce spending and improve your emergency fund.</p>`;
+    } else {
+      advice += `<p>⚠️ You're spending more than you earn. Review bills like subscriptions or optional insurance. Contact providers for hardship relief programs.</p>`;
+    }
   }
 
-  var emergencyMode = document.getElementById("emergencyMode");
-  if (emergencyMode && emergencyMode.checked) {
-    document.getElementById("personalizedAdvice").innerHTML = "In emergency mode, we recommend putting aside at least 20% of your income for unexpected expenses.";
-  } else {
-    document.getElementById("personalizedAdvice").innerHTML = "Congratulations on planning ahead! Consider setting some money aside for future savings or investing opportunities.";
+  if (totalExpenses > totalIncome * 0.7) {
+    advice += `<p>💡 Consider reducing fixed costs (like moving to a cheaper rental) or increasing income (side jobs, selling unused items).</p>`;
   }
+
+  document.getElementById("advice").innerHTML = advice;
+}
+
+// PDF generation using browser print
+function saveAsPDF() {
+  window.print();
 }
