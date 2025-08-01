@@ -1,189 +1,204 @@
-/* General Reset */
+/* Reset and base */
 * {
   box-sizing: border-box;
 }
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f6f8;
+  background: #f9fafb;
   color: #333;
   margin: 0;
-  padding: 0;
+  padding: 20px;
 }
-
 .container {
-  max-width: 700px;
-  margin: 2rem auto 4rem;
-  background: #fff;
-  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 25px 30px;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
-
 h1 {
   text-align: center;
   color: #2a7de1;
-  margin-bottom: 0.25rem;
+  margin-bottom: 5px;
 }
-
 .subtitle {
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+  margin-bottom: 25px;
   color: #555;
 }
 
+/* Form */
 form label {
-  font-weight: 600;
-  margin-top: 1rem;
   display: block;
+  margin-top: 15px;
+  font-weight: 600;
 }
-
-input[type="number"], select {
+form input[type="number"] {
   width: 100%;
-  padding: 0.4rem 0.6rem;
-  margin-top: 0.3rem;
-  border: 1.8px solid #ccc;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+  font-size: 16px;
+  transition: border-color 0.3s;
 }
-
-input[type="number"]:focus, select:focus {
-  outline: none;
+form input[type="number"]:focus {
   border-color: #2a7de1;
-  box-shadow: 0 0 6px #2a7de1a6;
+  outline: none;
 }
 
-fieldset {
-  margin-top: 1.5rem;
-  border: 1.5px solid #ccc;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-}
-
-legend {
-  font-weight: 700;
-  padding: 0 0.5rem;
-  color: #2a7de1;
-}
-
+/* Bills Container */
 #bills-container {
-  margin-bottom: 1rem;
+  margin-top: 20px;
+  margin-bottom: 15px;
 }
 
 .bill-entry {
   display: flex;
-  gap: 10px;
-  margin-bottom: 0.8rem;
   align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
 }
 
-.bill-entry select, .bill-entry input[type="number"] {
-  flex: 1;
-  min-width: 0;
-}
-
-.bill-entry button.remove-bill-btn {
-  background: #e53935;
-  border: none;
-  color: white;
-  padding: 0.3rem 0.8rem;
+.bill-select {
+  flex: 2;
+  padding: 8px 10px;
+  font-size: 16px;
   border-radius: 5px;
-  font-weight: 600;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s;
+}
+.bill-select:focus {
+  border-color: #2a7de1;
+  outline: none;
+}
+
+.bill-amount {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s;
+}
+.bill-amount:focus {
+  border-color: #2a7de1;
+  outline: none;
+}
+
+/* Remove button */
+.remove-bill-btn {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
+}
+.remove-bill-btn:hover {
+  background: #b02a26;
 }
 
-.bill-entry button.remove-bill-btn:hover {
-  background: #b32a27;
-}
-
-#add-bill-btn {
+/* Add bill button */
+.add-bill-btn {
   background: #2a7de1;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 7px;
-  font-weight: 700;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-bottom: 25px;
+  transition: background-color 0.3s;
+}
+.add-bill-btn:hover {
+  background: #1c56a1;
 }
 
-#add-bill-btn:hover {
-  background: #1b54a1;
-}
-
-button#submit-btn, button#export-pdf-btn {
+/* Submit button */
+#submit-btn {
   background: #4caf50;
   color: white;
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  display: block;
+  padding: 12px 20px;
+  font-size: 18px;
   width: 100%;
-  font-size: 1.1rem;
-  transition: background-color 0.3s ease;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+#submit-btn:hover {
+  background: #3a8a37;
 }
 
-button#submit-btn:hover {
-  background: #3a8a40;
-}
-
-button#export-pdf-btn:hover {
-  background: #388e3c;
+/* Results section */
+#results {
+  margin-top: 40px;
 }
 
 .hidden {
   display: none !important;
 }
 
-#results {
-  margin-top: 2rem;
-}
-
-#summary p {
-  font-size: 1.1rem;
-  margin: 0.3rem 0;
-}
-
-#progress-section {
-  margin-top: 1.5rem;
-}
-
+/* Progress bar */
 #progress-bar-wrapper {
-  background-color: #ddd;
   width: 100%;
-  height: 24px;
-  border-radius: 12px;
+  background: #eee;
+  border-radius: 10px;
+  height: 25px;
+  margin-top: 8px;
   overflow: hidden;
-  margin: 0.3rem 0;
 }
-
 #progress-bar {
   height: 100%;
   width: 0%;
-  border-radius: 12px;
-  transition: width 0.5s ease, background-color 0.3s ease;
+  background-color: #4caf50;
+  border-radius: 10px 0 0 10px;
+  transition: width 0.6s ease, background-color 0.6s ease;
 }
-
 #progress-text {
+  margin-top: 8px;
   font-weight: 600;
-  margin-top: 0.3rem;
+  text-align: center;
 }
 
-canvas#budgetChart {
-  margin-top: 1rem;
-  max-width: 100%;
-  height: auto !important;
+/* Export PDF button */
+#export-pdf-btn {
+  background: #2a7de1;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: background-color 0.3s;
+  display: inline-block;
+}
+#export-pdf-btn:hover {
+  background: #1c56a1;
 }
 
+/* Footer */
 footer {
   text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
+  margin-top: 50px;
+  color: #999;
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .bill-entry {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .remove-bill-btn {
+    align-self: flex-end;
+  }
 }
