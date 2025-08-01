@@ -2,55 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Broke Budget Buddy</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="container">
+  <main>
     <h1>Broke Budget Buddy</h1>
-    <p class="subtitle">Your smarter, friendlier budget planner</p>
-
-    <form id="budget-form">
-      <label for="income">Your Monthly Income ($):</label>
-      <input type="number" id="income" placeholder="Enter your income" required />
-
-      <label for="partnerIncome">Partner's Monthly Income (optional):</label>
-      <input type="number" id="partnerIncome" placeholder="Enter partner's income" />
-
-      <div id="bills-section" class="bills-section"></div>
-
-      <button type="button" id="addBill" class="add-bill-btn">+ Add Bill</button>
-
-      <button type="submit" id="submit-btn" class="submit-btn">Get Budget</button>
-    </form>
-
-    <section id="results" class="hidden">
-      <h2 id="summary-title" class="hidden">Budget Summary</h2>
-      <div id="summary"></div>
-
-      <div id="progress-section" class="hidden">
-        <label for="progress-bar">Monthly Budget Usage:</label>
-        <div id="progress-bar-wrapper">
-          <div id="progress-bar"></div>
-        </div>
-        <p id="progress-text"></p>
+    <form id="budgetForm">
+      <div class="input-group">
+        <label for="income">Your Income:</label>
+        <input type="number" id="income" placeholder="e.g., 2000" />
+      </div>
+      <div class="input-group">
+        <label for="spouseIncome">Partner Income (optional):</label>
+        <input type="number" id="spouseIncome" placeholder="e.g., 1500" />
       </div>
 
-      <h2 id="chart-title" class="hidden">Spending Breakdown</h2>
-      <canvas id="budgetChart" width="400" height="400"></canvas>
+      <h2>Bills</h2>
+      <div id="billsContainer"></div>
+      <button type="button" id="addBill">Add Bill</button>
 
-      <h2 id="advice-title" class="hidden">Smart Financial Advice</h2>
-      <div id="advice"></div>
+      <button type="submit">Calculate</button>
+    </form>
 
-      <button id="export-pdf-btn" class="hidden">Export as PDF</button>
+    <section id="results" style="display:none;">
+      <div id="summaryText"></div>
+      <div class="progress">
+        <div id="usageBar" class="bar"></div>
+        <div id="usageText"></div>
+      </div>
+      <canvas id="chart"></canvas>
+      <div id="adviceBox"></div>
     </section>
-  </div>
+  </main>
 
-  <footer>Built by Ben Becker</footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
