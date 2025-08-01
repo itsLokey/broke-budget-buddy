@@ -1,93 +1,105 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const billContainer = document.getElementById("billContainer");
-  const addBillBtn = document.getElementById("addBillBtn");
-  const budgetForm = document.getElementById("budgetForm");
-  const summarySection = document.getElementById("budgetSummary");
-  const usageSection = document.getElementById("usageSection");
-  const breakdownSection = document.getElementById("breakdownSection");
-  const adviceSection = document.getElementById("adviceSection");
-  const exportBtn = document.getElementById("exportBtn");
-
-  const billTypes = [
-    "Rent/Mortgage", "Utilities", "Internet", "Phone", "Groceries",
-    "Transportation", "Insurance", "Loans", "Subscriptions", "Childcare",
-    "Savings", "Other"
-  ];
+document.addEventListener("DOMContentLoaded", () => {
+  const budgetForm = document.getElementById("budget-form");
+  const billList = document.getElementById("bill-list");
+  const addBillBtn = document.getElementById("add-bill");
+  const results = document.getElementById("results");
+  const summaryDiv = document.getElementById("summary");
+  const breakdownList = document.getElementById("breakdown-list");
+  const adviceDiv = document.getElementById("advice");
+  const exportBtn = document.getElementById("export");
+  let budgetChart;
 
   function createBillField() {
-    if (!billContainer) return;
-
     const div = document.createElement("div");
     div.className = "bill-field";
-
-    const select = document.createElement("select");
-    select.name = "billType[]";
-    billTypes.forEach(type => {
-      const option = document.createElement("option");
-      option.value = type;
-      option.textContent = type;
-      select.appendChild(option);
-    });
-
-    const input = document.createElement("input");
-    input.type = "number";
-    input.name = "billAmount[]";
-    input.placeholder = "Amount";
-    input.required = true;
-
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.textContent = "Remove";
-    removeBtn.className = "remove-btn";
-    removeBtn.onclick = () => div.remove();
-
-    div.appendChild(select);
-    div.appendChild(input);
-    div.appendChild(removeBtn);
-    billContainer.appendChild(div);
+    div.innerHTML = `
+      <select class="bill-type">
+        <option value="Rent">Rent</option>
+        <option value="Utilities">Utilities</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Transportation">Transportation</option>
+        <option value="Phone">Phone</option>
+        <option value="Internet">Internet</option>
+        <option value="Childcare">Childcare</option>
+        <option value="Debt">Debt</option>
+        <option value="Subscriptions">Subscriptions</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" class="bill-amount" placeholder="$ Amount" />
+      <button type="button" class="remove-bill">✖</button>
+    `;
+    billList.appendChild(div);
   }
 
-  addBillBtn?.addEventListener("click", createBillField);
+  billList.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-bill")) {
+      e.target.parentElement.remove();
+    }
+  });
 
-  // Initialize with one bill field
-  createBillField();
+  addBillBtn.addEventListener("click", createBillField);
 
-  budgetForm.onsubmit = function (e) {
+  budgetForm.onsubmit = (e) => {
     e.preventDefault();
 
-    const income = parseFloat(document.getElementById("income").value);
-    const billAmounts = Array.from(document.getElementsByName("billAmount[]")).map(input => parseFloat(input.value) || 0);
-    const totalBills = billAmounts.reduce((acc, curr) => acc + curr, 0);
-    const remaining = income - totalBills;
-    const usage = (totalBills / income) * 100;
+    const income = parseFloat(document.getElementById("income").value) || 0;
+    const partner = parseFloat(document.getElementById("partner-income").value) || 0;
+    const extra = parseFloat(document.getElementById("extra-income").value) || 0;
+    const totalIncome = income + partner + extra;
 
-    document.getElementById("totalBills").textContent = `$${totalBills.toFixed(2)}`;
-    document.getElementById("remainingBudget").textContent = `$${remaining.toFixed(2)}`;
-    document.getElementById("usagePercent").textContent = `${usage.toFixed(1)}%`;
+    const bills = [];
+    const billTypes = document.querySelectorAll(".bill-type");
+    const billAmounts = document.querySelectorAll(".bill-amount");
 
-    summarySection.style.display = "block";
-    usageSection.style.display = "block";
-    breakdownSection.style.display = "block";
-    adviceSection.style.display = "block";
-    exportBtn.style.display = "inline-block";
+    billTypes.forEach((typeEl, i) => {
+      const type = typeEl.value;
+      const amount = parseFloat(billAmounts[i].value) || 0;
+      bills.push({ type, amount });
+    });
 
-    generateChart(income, totalBills);
-    generateAdvice(remaining, totalBills, income);
+    const totalBills = bills.reduce((acc, b) => acc + b.amount, 0);
+    const remaining = totalIncome - totalBills;
+
+    summaryDiv.innerHTML = `
+      <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
+      <p><strong>Total Bills:</strong> $${totalBills.toFixed(2)}</p>
+      <p><strong>Remaining Balance:</strong> $${remaining.toFixed(2)}</p>
+    `;
+
+    generateChart(bills, totalBills, remaining);
+    generateAdvice(remaining, bills, totalIncome);
+
+    breakdownList.innerHTML = "";
+    bills.forEach(bill => {
+      const li = document.createElement("li");
+      li.textContent = `${bill.type}: $${bill.amount.toFixed(2)}`;
+      breakdownList.appendChild(li);
+    });
+
+    results.classList.remove("hidden");
   };
 
-  function generateChart(income, bills) {
+  function generateChart(bills, totalBills, remaining) {
     const ctx = document.getElementById("budgetChart").getContext("2d");
-    if (window.budgetChart) {
-      window.budgetChart.destroy();
-    }
 
-    window.budgetChart = new Chart(ctx, {
+    if (budgetChart) budgetChart.destroy();
+
+    const labels = bills.map(b => b.type).concat("Remaining");
+    const data = bills.map(b => b.amount).concat(remaining > 0 ? remaining : 0);
+
+    budgetChart = new Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: ["Bills", "Remaining"],
+        labels,
         datasets: [{
-          data: [bills, income - bills],
-          backgroundColor: ["#ff4d4d", "#4caf50"],
+          label: "Budget Breakdown",
+          data,
+          backgroundColor: [
+            "#3498db", "#2ecc71", "#e67e22", "#e74c3c",
+            "#9b59b6", "#f1c40f", "#1abc9c", "#34495e",
+            "#d35400", "#7f8c8d", "#95a5a6"
+          ],
           borderColor: "#fff",
           borderWidth: 2
         }]
@@ -106,28 +118,55 @@ document.addEventListener("DOMContentLoaded", function () {
     let advice = "";
 
     if (remaining < 0) {
-      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}. Review your bills.</strong></p>`;
-    } else if (remaining < income * 0.2) {
-      advice += `<p>💡 <strong>Consider cutting non-essential expenses to increase savings.</strong></p>`;
+      advice += `<p>⚠️ <strong>You are overspending by $${Math.abs(remaining).toFixed(2)}</strong>. Consider cutting unnecessary expenses.</p>`;
+    } else if (remaining < income * 0.1) {
+      advice += `<p>✅ You're doing okay, but your remaining balance is low. Watch your spending this month.</p>`;
     } else {
-      advice += `<p>✅ <strong>Good job! You're managing your finances wisely. Consider investing or saving more.</strong></p>`;
+      advice += `<p>💰 Great job! You have room to save or invest.</p>`;
     }
 
-    document.getElementById("adviceText").innerHTML = advice;
+    const highBill = bills.reduce((prev, curr) => (curr.amount > prev.amount ? curr : prev), bills[0]);
+    if (highBill) {
+      advice += `<p>📊 Highest expense: <strong>${highBill.type}</strong> ($${highBill.amount.toFixed(2)}). See if this can be reduced.</p>`;
+    }
+
+    adviceDiv.innerHTML = advice;
   }
 
-  exportBtn?.addEventListener("click", function () {
-    const exportArea = document.getElementById("exportArea");
-    if (!exportArea) return;
+  exportBtn.addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Broke Budget Summary", 20, 20);
 
-    const opt = {
-      margin: 0.5,
-      filename: "Budget_Summary.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
-    };
+    let y = 30;
+    summaryDiv.querySelectorAll("p").forEach(p => {
+      doc.setFontSize(12);
+      doc.text(p.textContent, 20, y);
+      y += 10;
+    });
 
-    html2pdf().from(exportArea).set(opt).save();
+    y += 10;
+    doc.setFontSize(14);
+    doc.text("Spending Breakdown", 20, y);
+    y += 10;
+    breakdownList.querySelectorAll("li").forEach(li => {
+      doc.text(li.textContent, 20, y);
+      y += 8;
+    });
+
+    y += 10;
+    doc.setFontSize(14);
+    doc.text("Advice", 20, y);
+    y += 10;
+    adviceDiv.querySelectorAll("p").forEach(p => {
+      doc.setFontSize(12);
+      doc.text(p.textContent, 20, y);
+      y += 8;
+    });
+
+    doc.save("budget-summary.pdf");
   });
+
+  createBillField(); // Start with one bill
 });
