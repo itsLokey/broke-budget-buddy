@@ -1,192 +1,163 @@
-/* Basic Reset */
+/* Reset & base */
 * {
   box-sizing: border-box;
 }
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f7fa;
-  margin: 0;
+  margin: 0; padding: 20px;
+  background-color: #f0f4f8;
   color: #333;
-  line-height: 1.6;
 }
-
 .container {
   max-width: 720px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin: 0 auto;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
-
-h1, h2 {
-  text-align: center;
+h1 {
+  margin-top: 0;
   color: #2a7de1;
 }
-
 .subtitle {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #555;
+  margin-bottom: 30px;
 }
 
-form label, form legend {
+form label {
   font-weight: 600;
   display: block;
-  margin-top: 1rem;
-  margin-bottom: 0.3rem;
+  margin: 12px 0 6px;
 }
 
-input[type="number"] {
+input[type="number"], select {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 15px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s ease;
 }
 
-input[type="number"]:focus {
+input[type="number"]:focus, select:focus {
   border-color: #2a7de1;
   outline: none;
 }
 
-fieldset {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
-  margin-top: 1rem;
-}
-
-.bill-checkbox {
+#bill-entry {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.4rem 0;
+  margin-bottom: 10px;
 }
 
-.bill-checkbox input[type="checkbox"] {
-  transform: scale(1.3);
-  cursor: pointer;
+#bill-select {
+  flex: 2;
 }
 
-.bill-checkbox input.bill-amount {
-  width: 100px;
-  margin-left: auto;
-  padding: 0.3rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  transition: border-color 0.3s;
+#bill-amount {
+  flex: 1;
 }
 
-.bill-checkbox input.bill-amount:disabled {
-  background-color: #eee;
-  cursor: not-allowed;
-}
-
-button#submit-btn {
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 0.7rem;
-  font-size: 1.1rem;
+#add-bill-btn {
   background-color: #2a7de1;
+  color: white;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+#add-bill-btn:hover {
+  background-color: #1b53b0;
+}
+
+.bills-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 20px;
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.bills-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  color: #444;
+}
+
+.bills-list li:last-child {
+  border-bottom: none;
+}
+
+.bills-list button.remove-btn {
+  background: #e53935;
   border: none;
   color: white;
-  border-radius: 10px;
+  border-radius: 4px;
+  padding: 4px 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 700;
+  transition: background-color 0.3s ease;
 }
 
-button#submit-btn:hover {
-  background-color: #1d5bc1;
+.bills-list button.remove-btn:hover {
+  background: #b12b25;
 }
 
-.hidden {
-  display: none;
+button[type="submit"], #export-pdf-btn {
+  background-color: #2a7de1;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-#summary, #advice {
-  background-color: #f1f6ff;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  color: #222;
+button[type="submit"]:hover, #export-pdf-btn:hover {
+  background-color: #1b53b0;
 }
 
-#progress-section {
-  margin-bottom: 2rem;
+#results {
+  margin-top: 30px;
 }
 
 #progress-bar-wrapper {
-  width: 100%;
-  height: 22px;
-  background-color: #ddd;
-  border-radius: 12px;
+  background: #ddd;
+  border-radius: 8px;
   overflow: hidden;
-  margin: 0.5rem 0 0.8rem 0;
+  height: 25px;
+  margin: 10px 0;
 }
 
 #progress-bar {
-  height: 100%;
+  height: 25px;
   width: 0%;
-  background-color: green;
-  transition: width 0.6s ease-in-out;
-  border-radius: 12px 0 0 12px;
-}
-
-#progress-text {
-  font-weight: 600;
-  color: #444;
-  text-align: center;
-}
-
-canvas {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 2rem auto;
+  background-color: #4caf50;
+  transition: width 0.5s ease, background-color 0.5s ease;
 }
 
 footer {
   text-align: center;
-  font-size: 0.9rem;
-  padding: 1rem 0;
-  color: #888;
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #121212;
-    color: #eee;
-  }
-  .container {
-    background-color: #1e1e1e;
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05);
-  }
-  #summary, #advice {
-    background-color: #292929;
-    color: #ddd;
-  }
-  input[type="number"] {
-    background-color: #333;
-    border: 1px solid #555;
-    color: #eee;
-  }
-  input[type="number"]:focus {
-    border-color: #4a90e2;
-  }
-  button#submit-btn {
-    background-color: #4a90e2;
-  }
-  button#submit-btn:hover {
-    background-color: #357abd;
-  }
-  #progress-bar-wrapper {
-    background-color: #333;
-  }
+  margin-top: 40px;
+  font-style: italic;
+  color: #777;
+  user-select: none;
 }
