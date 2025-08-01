@@ -1,15 +1,16 @@
 body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f2f4f8;
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f3f3f3;
+  color: #333;
 }
 
 .container {
-  max-width: 800px;
-  margin: 30px auto;
-  background: white;
-  padding: 30px;
+  max-width: 700px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
@@ -19,68 +20,50 @@ h1, h2 {
   color: #2c3e50;
 }
 
-form label {
-  display: block;
-  margin: 15px 0 5px;
-  font-weight: bold;
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
-input[type="number"], select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
+.form-section {
+  display: flex;
+  flex-direction: column;
+}
+
+input, select {
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-top: 0.3rem;
 }
 
 button {
-  padding: 10px 15px;
-  margin-top: 10px;
+  padding: 0.8rem;
+  font-size: 1rem;
   border: none;
   background: #3498db;
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  transition: background 0.3s ease;
 }
 
 button:hover {
   background: #2980b9;
 }
 
-.bill-field {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.bill-field select,
-.bill-field input {
-  flex: 1;
-}
-
-.remove-bill {
-  background: #e74c3c;
-  color: white;
-  padding: 0 10px;
-}
-
-.remove-bill:hover {
-  background: #c0392b;
+#results {
+  margin-top: 2rem;
 }
 
 .hidden {
   display: none;
 }
 
-#summary, #advice, #breakdown-list {
-  margin-top: 20px;
-}
-
-#export {
-  background: #2ecc71;
-}
-
-#export:hover {
-  background: #27ae60;
+.bill {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
